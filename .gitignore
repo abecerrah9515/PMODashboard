@@ -1,0 +1,14 @@
+# --- Confidencial: NUNCA subir a un repo (los manuales de marca y la fuente Power BI) ---
+*.pdf
+*.pbix
+
+# --- Datos fuente / temporales del proyecto ---
+*.xlsx
+
+# --- Configuración local de herramientas ---
+.claude/
+
+# --- Sistema ---
+Thumbs.db
+.DS_Store
+desktop.ini

@@ -1,0 +1,1594 @@
+<meta charset="utf-8">
+<title>Tablero de Control · VITAL Supermayorista</title>
+<style>
+  :root {
+    color-scheme: light;
+    --vital-red:#eb1c2d; --vital-blue:#134b95; --vital-g50:#929497; --vital-g70:#6d6e70;
+    --brand:#134b95; --brand-deep:#0e3a75; --brand-ink:#134b95; --accent:#eb1c2d;
+    --page:#eef1f6; --surface:#ffffff; --surface-2:#f4f6fa;
+    --ink:#16233a; --ink-2:#5a6577; --muted:#929497;
+    --hair:#e0e5ee; --hair-strong:#ccd3e0;
+    --good:#0f8a3d; --good-track:#d9f0e1;
+    --warn:#b87503; --warn-track:#fbeacb;
+    --serious:#d1591f; --crit:#eb1c2d; --crit-track:#fbdadd;
+    --track:#e4e9f2;
+    --shadow:0 1px 2px rgba(22,35,58,.05),0 8px 24px rgba(22,35,58,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --brand:#5b93e0; --brand-deep:#0e2a4d; --brand-ink:#7fb0ec; --accent:#ff5566;
+      --page:#0c121e; --surface:#151d2e; --surface-2:#1d2739;
+      --ink:#eaf0fa; --ink-2:#b3c0d4; --muted:#8792a5;
+      --hair:#2a3549; --hair-strong:#3b4860;
+      --good:#35c96a; --good-track:#123322; --warn:#e0a02a; --warn-track:#3a2d10;
+      --serious:#ef8354; --crit:#ff5566; --crit-track:#3d1a20;
+      --track:#2b3a52;
+      --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 28px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --brand:#5b93e0; --brand-deep:#0e2a4d; --brand-ink:#7fb0ec; --accent:#ff5566;
+    --page:#0c121e; --surface:#151d2e; --surface-2:#1d2739;
+    --ink:#eaf0fa; --ink-2:#b3c0d4; --muted:#8792a5;
+    --hair:#2a3549; --hair-strong:#3b4860;
+    --good:#35c96a; --good-track:#123322; --warn:#e0a02a; --warn-track:#3a2d10;
+    --serious:#ef8354; --crit:#ff5566; --crit-track:#3d1a20;
+    --track:#2b3a52;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 28px rgba(0,0,0,.45);
+  }
+
+  * { box-sizing: border-box; }
+  .tc { font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink);
+        background:var(--page); line-height:1.45; -webkit-font-smoothing:antialiased;
+        padding:0 0 64px; min-height:100%; }
+  .tc-wrap { max-width:1200px; margin:0 auto; padding:0 28px; }
+
+  /* Barra de marca — Manual VITAL pag. 15-16: el logo siempre sobre blanco */
+  .brandbar { background:#fff; border-bottom:1px solid #e6e9ef; }
+  .brandbar .tc-wrap { display:flex; align-items:center; justify-content:space-between;
+    gap:24px; padding-top:16px; padding-bottom:16px; flex-wrap:wrap; }
+  .vital-logo { width:140px; flex:none; line-height:0; }
+  .vital-logo svg { width:100%; height:auto; display:block; }
+  .powered { display:flex; align-items:center; gap:10px; flex:none; }
+  .powered .lbl { font-size:13px; color:#53565A; white-space:nowrap; }
+  .powered .stk { width:74px; line-height:0; }
+  .powered .stk svg { width:100%; height:auto; display:block; }
+
+  .titlebar { background:linear-gradient(100deg,var(--vital-blue) 0%,#0f3f7d 100%);
+    color:#fff; padding:26px 0 28px; border-bottom:4px solid var(--vital-red); }
+  .titlebar .tc-wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .tc-eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.72); font-weight:600; }
+  .tc-title { font-size:24px; font-weight:700; letter-spacing:-.015em; margin:4px 0 0; }
+  .tc-sub { font-size:13px; color:rgba(255,255,255,.72); margin-top:5px; max-width:56ch; }
+  .tc-hright { display:flex; flex-direction:column; align-items:flex-end; gap:12px; }
+  .tc-actions { display:flex; gap:9px; flex-wrap:wrap; justify-content:flex-end; }
+  .tc-meta { text-align:right; font-size:12px; color:rgba(255,255,255,.78); line-height:1.5; }
+  .tc-meta b { display:block; font-size:15px; color:#fff; font-weight:700; }
+
+  .hbtn { display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.3);
+    border-radius:999px; padding:7px 14px; font:inherit; font-size:12.5px; font-weight:600; transition:background .15s; }
+  .hbtn:hover { background:rgba(255,255,255,.24); }
+  .hbtn:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  .hbtn svg { width:16px; height:16px; }
+  .hbtn.primary { background:#fff; color:var(--vital-blue); border-color:#fff; }
+  .hbtn.primary:hover { background:#eef3fb; }
+  .theme-btn .lbl-dark, :root[data-theme="dark"] .theme-btn .lbl-light,
+  :root[data-theme="dark"] .theme-btn .ico-moon, .theme-btn .ico-sun { display:none; }
+  :root[data-theme="dark"] .theme-btn .lbl-dark, :root[data-theme="dark"] .theme-btn .ico-sun,
+  .theme-btn .lbl-light, .theme-btn .ico-moon { display:inline; }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .theme-btn .ico-moon,
+    :root:where(:not([data-theme="light"])) .theme-btn .lbl-light { display:none; }
+    :root:where(:not([data-theme="light"])) .theme-btn .ico-sun,
+    :root:where(:not([data-theme="light"])) .theme-btn .lbl-dark { display:inline; }
+  }
+
+  /* Aviso de origen de datos */
+  .srcbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:10px 0; font-size:12px; color:var(--ink-2); border-bottom:1px solid var(--hair); }
+  .srcbar .tag { display:inline-flex; align-items:center; gap:7px; font-weight:600; color:var(--ink); }
+  .srcbar .tag svg { width:14px; height:14px; color:var(--brand); }
+  .srcbar .sep { color:var(--hair-strong); }
+  .srcbar .lnk { cursor:pointer; font:inherit; font-size:12px; font-weight:600; color:var(--brand-ink);
+    background:none; border:none; text-decoration:underline; padding:2px; }
+  .srcbar .warn { color:var(--warn); font-weight:600; }
+
+  .loadmsg { margin:16px 0 0; border-radius:12px; padding:14px 16px; font-size:12.5px; line-height:1.6;
+    border:1px solid; display:none; }
+  .loadmsg.err { display:block; background:var(--crit-track); border-color:var(--crit); color:var(--ink); }
+  .loadmsg.ok  { display:block; background:var(--good-track); border-color:var(--good); color:var(--ink); }
+  .loadmsg b { display:block; margin-bottom:5px; font-size:13px; }
+  .loadmsg ul { margin:6px 0 0; padding-left:18px; }
+  .loadmsg code { background:rgba(0,0,0,.06); padding:1px 5px; border-radius:4px; font-size:11.5px; }
+
+  .filters { position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--page) 90%, transparent);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--hair); }
+  .filters-in { display:flex; align-items:center; gap:22px; padding:12px 0; flex-wrap:wrap; }
+  .fgroup { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .flabel { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .fchip { cursor:pointer; font:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px;
+    border:1px solid var(--hair-strong); background:var(--surface); color:var(--ink-2); transition:all .13s; white-space:nowrap; }
+  .fchip:hover { border-color:var(--brand); color:var(--brand-ink); }
+  .fchip:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .fchip[aria-pressed="true"] { background:var(--brand); border-color:var(--brand); color:#fff; }
+  .fclear { margin-left:auto; display:flex; align-items:center; gap:12px; }
+  .fcount { font-size:11.5px; color:var(--ink-2); }
+  .fcount b { color:var(--ink); font-weight:700; }
+  .freset { cursor:pointer; font:inherit; font-size:12px; font-weight:600; color:var(--brand-ink);
+    background:none; border:none; text-decoration:underline; padding:4px; }
+  .freset:disabled { color:var(--muted); text-decoration:none; cursor:default; }
+  .fdiv { width:1px; align-self:stretch; background:var(--hair-strong); }
+
+  section { margin-top:34px; }
+  .tc-sechead { display:flex; align-items:baseline; gap:12px; margin-bottom:15px; }
+  .tc-secnum { font-size:12px; font-weight:700; color:#fff; background:var(--brand); width:23px; height:23px;
+    border-radius:6px; display:grid; place-items:center; flex:none; }
+  .tc-sectitle { font-size:17px; font-weight:700; letter-spacing:-.01em; }
+  .tc-secnote { font-size:12.5px; color:var(--ink-2); margin-left:auto; text-align:right; }
+  .card { background:var(--surface); border:1px solid var(--hair); border-radius:14px; box-shadow:var(--shadow); padding:22px; }
+  .card h3 { font-size:13.5px; font-weight:700; margin:0 0 2px; }
+  .card .cardnote { font-size:12px; color:var(--ink-2); margin:0 0 16px; }
+  .empty { text-align:center; padding:26px 16px; color:var(--muted); font-size:12.5px; background:var(--surface-2);
+    border-radius:10px; border:1px dashed var(--hair-strong); }
+  .empty b { display:block; color:var(--ink-2); font-size:13px; margin-bottom:3px; }
+
+  .kpis { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:18px; margin-top:26px; }
+  .kpi { background:var(--surface); border:1px solid var(--hair); border-radius:14px; box-shadow:var(--shadow);
+    padding:20px; display:flex; flex-direction:column; }
+  .kpi.hero { background:linear-gradient(150deg,var(--surface) 0%,var(--surface-2) 100%); border-color:var(--hair-strong); }
+  .kpi-label { font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .kpi-value { font-size:42px; font-weight:750; letter-spacing:-.025em; line-height:1.02; margin-top:8px; }
+  .kpi.small .kpi-value { font-size:32px; }
+  .kpi-value small { font-size:.46em; font-weight:600; color:var(--ink-2); letter-spacing:0; }
+  .kpi-delta { font-size:12.5px; font-weight:600; margin-top:8px; display:flex; align-items:center; gap:6px; }
+  .kpi-sub { font-size:12px; color:var(--ink-2); margin-top:6px; }
+  .kpi-sub b { color:var(--ink); }
+  .kpi .spacer { flex:1; }
+  .meter { height:9px; border-radius:6px; background:var(--track); margin-top:14px; position:relative; }
+  .meter > span { position:absolute; inset:0 auto 0 0; border-radius:6px; background:linear-gradient(90deg,var(--vital-blue),var(--vital-red)); }
+  .meter .exp { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.55; }
+  .chip { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:999px; }
+  .dot { width:8px; height:8px; border-radius:50%; flex:none; }
+  .chips-row { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .chip-good { background:var(--good-track); color:var(--good); }
+  .chip-warn { background:var(--warn-track); color:var(--warn); }
+  .chip-crit { background:var(--crit-track); color:var(--crit); }
+
+  .cron-head, .cron-row { display:grid; grid-template-columns:2fr 1.1fr 2.4fr .7fr .8fr; gap:16px; align-items:center; }
+  .cron-head { font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:600;
+    padding-bottom:10px; border-bottom:1px solid var(--hair-strong); }
+  .cron-head .r { text-align:right; }
+  .cron-row { padding:13px 0; border-top:1px solid var(--hair); }
+  .cron-row:first-of-type { border-top:none; }
+  .phase-name { font-size:13.5px; font-weight:650; }
+  .phase-name em { display:block; font-style:normal; font-size:11px; color:var(--muted); font-weight:500; margin-top:2px; }
+  .phase-dates { font-size:11.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+  .phase-dates span { display:block; color:var(--muted); font-size:10.5px; margin-top:1px; }
+  .bar-track { position:relative; height:22px; background:var(--track); border-radius:6px; }
+  .bar-fill { position:absolute; inset:0 auto 0 0; border-radius:6px 4px 4px 6px; }
+  .bar-fill.done { background:var(--good); }
+  .bar-fill.wip { background:var(--brand); }
+  .bar-exp { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.5; border-radius:2px; }
+  .bar-exp::after { content:"meta"; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--muted); white-space:nowrap; }
+  .bar-val { position:absolute; top:50%; transform:translateY(-50%); font-size:11px; font-weight:700; color:#fff; right:8px; }
+  .weight-pill { font-size:12px; font-weight:700; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
+  .weight-pill span { display:block; font-size:9.5px; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:.04em; }
+  .diff { font-size:13px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
+  .diff.zero { color:var(--good); }
+  .diff.neg { color:var(--serious); }
+  .cron-comment { grid-column:1/-1; font-size:11.5px; color:var(--ink-2); background:var(--surface-2);
+    border-left:3px solid var(--hair-strong); padding:6px 10px; border-radius:0 6px 6px 0; margin-top:4px; }
+  .cron-comment b { color:var(--brand-ink); font-weight:600; }
+  .cron-foot { display:flex; justify-content:flex-end; gap:26px; padding-top:14px; margin-top:6px;
+    border-top:2px solid var(--hair-strong); font-size:12.5px; }
+  .cron-foot div b { font-size:16px; font-weight:750; margin-left:6px; }
+
+  .gantt-months { display:grid; grid-template-columns:190px 1fr; gap:16px; align-items:end; margin-bottom:6px; }
+  .gantt-scale { position:relative; height:16px; }
+  .gantt-mlbl { position:absolute; bottom:0; font-size:10.5px; color:var(--muted); font-weight:600;
+    letter-spacing:.04em; text-transform:uppercase; transform:translateX(4px); white-space:nowrap; }
+  .gantt-row { display:grid; grid-template-columns:190px 1fr; gap:16px; align-items:center; padding:7px 0; }
+  .gantt-lbl { font-size:12px; font-weight:600; text-align:right; color:var(--ink-2); }
+  .gantt-lane { position:relative; height:26px; border-radius:6px; background:var(--surface-2); }
+  .gantt-grid { position:absolute; inset:0; pointer-events:none; }
+  .gantt-grid i { position:absolute; top:0; bottom:0; width:1px; background:var(--hair); }
+  .gantt-bar { position:absolute; top:4px; bottom:4px; border-radius:5px; background:var(--track);
+    overflow:hidden; box-shadow:inset 0 0 0 1px var(--hair-strong); }
+  .gantt-bar > span { position:absolute; inset:0 auto 0 0; border-radius:5px 0 0 5px; }
+  .gantt-bar > span.done { background:var(--good); }
+  .gantt-bar > span.wip { background:var(--brand); }
+  .gantt-bar b { position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:10px; font-weight:700; color:var(--ink-2); }
+  .gantt-legend { display:flex; gap:18px; flex-wrap:wrap; justify-content:flex-end; margin-top:14px; padding-top:12px;
+    border-top:1px solid var(--hair); font-size:11.5px; color:var(--ink-2); }
+  .gantt-legend span { display:inline-flex; align-items:center; gap:6px; }
+  .gantt-key { width:22px; height:9px; border-radius:3px; flex:none; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:stretch; }
+  .grid-2 > section { display:flex; flex-direction:column; }
+  .grid-2 > section > .card, .grid-2 > .card { flex:1; display:flex; flex-direction:column; }
+
+  .del-group-lbl { font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--brand-ink);
+    margin:16px 0 8px; display:flex; align-items:center; gap:8px; }
+  .del-group-lbl:first-child { margin-top:0; }
+  .del-group-lbl .ln { flex:1; height:1px; background:var(--hair); }
+  .del-row { display:grid; grid-template-columns:1fr 130px 46px; gap:14px; align-items:center; padding:10px 0; border-top:1px solid var(--hair); }
+  .del-row:first-child { border-top:none; }
+  .del-name { font-size:12.5px; font-weight:600; }
+  .del-name em { font-style:normal; display:block; font-size:10.5px; color:var(--muted); margin-top:2px; }
+  .del-track { height:10px; border-radius:5px; background:var(--track); position:relative; }
+  .del-track > span { position:absolute; inset:0 auto 0 0; border-radius:5px; }
+  .del-pct { font-size:12.5px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
+
+  .matrix { display:grid; grid-template-columns:60px repeat(3,1fr); grid-auto-rows:54px; gap:5px; }
+  .m-collab, .m-rowlab { font-size:10px; color:var(--muted); font-weight:600; display:grid; place-items:center; text-align:center; line-height:1.2; }
+  .m-cell { border-radius:8px; display:grid; place-items:center; font-weight:700; font-size:15px; }
+  .m-lvl1 { background:var(--good-track); color:var(--good); }
+  .m-lvl2 { background:var(--warn-track); color:var(--warn); }
+  .m-lvl3 { background:var(--crit-track); color:var(--crit); }
+  .m-empty { background:var(--surface-2); color:var(--muted); font-weight:500; font-size:12px; }
+  .m-axis-x { grid-column:2/span 3; text-align:center; font-size:10px; color:var(--muted); font-weight:600;
+    letter-spacing:.05em; text-transform:uppercase; margin-top:3px; }
+  .risk-row { display:grid; grid-template-columns:26px 1fr auto; gap:11px; align-items:start; padding:11px 0; border-top:1px solid var(--hair); }
+  .risk-row:first-child { border-top:none; }
+  .risk-id { font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; padding-top:1px; }
+  .risk-name { font-size:12.5px; font-weight:600; }
+  .risk-mit { font-size:11px; color:var(--ink-2); margin-top:3px; }
+  .risk-mit b { color:var(--brand-ink); font-weight:600; }
+  .risk-tags { display:flex; flex-direction:column; align-items:flex-end; gap:5px; white-space:nowrap; }
+  .tag-imp { font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:6px; }
+  .tag-imp.a { background:var(--crit-track); color:var(--crit); }
+  .tag-imp.m { background:var(--warn-track); color:var(--warn); }
+  .tag-imp.b { background:var(--good-track); color:var(--good); }
+  .tag-prob { font-size:10.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+  .nofilter { display:flex; gap:8px; align-items:flex-start; font-size:11px; color:var(--ink-2); background:var(--surface-2);
+    border-radius:8px; padding:8px 10px; margin-bottom:14px; }
+  .nofilter svg { width:13px; height:13px; flex:none; color:var(--muted); margin-top:1px; }
+
+  .donut-wrap { display:flex; align-items:center; justify-content:center; gap:26px; flex:1; padding:8px 0 4px; flex-wrap:wrap; }
+  .donut { width:132px; height:132px; border-radius:50%; flex:none; position:relative; }
+  .donut::after { content:""; position:absolute; inset:21px; border-radius:50%; background:var(--surface); }
+  .donut-center { position:absolute; inset:0; display:grid; place-content:center; text-align:center; z-index:1; }
+  .donut-center b { font-size:28px; font-weight:750; }
+  .donut-center small { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .legend { display:flex; flex-direction:column; gap:6px; }
+  .legend-item { display:flex; align-items:center; gap:9px; font-size:12.5px; padding:5px 8px; border-radius:7px;
+    border:1px solid transparent; transition:all .13s; }
+  .legend-item.sel { border-color:var(--brand); background:color-mix(in srgb, var(--brand) 8%, transparent); }
+  .legend-item.dim { opacity:.42; }
+  .legend-item .name { color:var(--ink-2); }
+  .legend-item b { margin-left:auto; font-variant-numeric:tabular-nums; font-weight:700; padding-left:14px; }
+  .sol-insight { margin-top:auto; padding-top:16px; border-top:1px solid var(--hair); }
+  .sol-close { display:flex; align-items:baseline; justify-content:space-between; font-size:12px; color:var(--ink-2); }
+  .sol-close b { font-size:13px; color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums; }
+  .sol-meter { height:8px; border-radius:5px; background:var(--track); margin-top:8px; position:relative; }
+  .sol-meter > span { position:absolute; inset:0 auto 0 0; border-radius:5px; background:var(--good); }
+  .sol-flag { display:flex; align-items:flex-start; gap:8px; margin-top:14px; font-size:11.5px; color:var(--ink-2);
+    background:var(--warn-track); border-radius:8px; padding:9px 11px; }
+  .sol-flag svg { width:14px; height:14px; flex:none; color:var(--warn); margin-top:1px; }
+  .sol-flag b { color:var(--warn); font-weight:700; }
+  .sol-row { display:grid; grid-template-columns:26px 1fr auto; gap:11px; align-items:center; padding:9px 0; border-top:1px solid var(--hair); }
+  .sol-row:first-child { border-top:none; }
+  .sol-id { font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .sol-name { font-size:12.5px; font-weight:600; }
+  .sol-name em { font-style:normal; display:block; font-size:10.5px; color:var(--muted); margin-top:1px; }
+  .st { font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap; }
+  .st-fin { background:var(--good-track); color:var(--good); }
+  .st-proc { background:color-mix(in srgb, var(--brand) 14%, transparent); color:var(--brand-ink); }
+  .st-no { background:var(--warn-track); color:var(--warn); }
+
+  .footer { margin-top:40px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.7; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns:1fr 1fr; }
+    .grid-2 { grid-template-columns:1fr; }
+    .cron-head { display:none; }
+    .cron-row { grid-template-columns:1fr 1fr; row-gap:10px; }
+    .cron-row .bar-track-cell { grid-column:1/-1; }
+    .gantt-months, .gantt-row { grid-template-columns:110px 1fr; gap:10px; }
+    .fclear { margin-left:0; width:100%; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+
+<div class="tc">
+  <div class="brandbar">
+    <div class="tc-wrap">
+      <div class="vital-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340.86 151.55" role="img" aria-label="VITAL Supermayorista"><path fill="#eb1c2d" d="M81.43 151.28L81.74 151.11L169.37 5.67C169.98 4.1 169.91 2.66 169.19 1.61C168.48 0.58 167.15 0.0 165.46 0.0L147.92 0.0C142.5 0.0 141.24 2.56 138.59 6.45L76.52 107.36L73.41 111.84C73.38 110.45 28.76 62.47 28.76 62.47C23.48 56.63 20.83 56.8 17.11 56.8L6.51 56.8C6.28 56.8 6.02 56.8 5.78 56.8L2.78 56.8C2.7 56.8 2.64 56.78 2.56 56.78C1.15 56.78 0.0 58.04 0.0 59.6C0.0 60.72 0.41 61.12 1.46 62.14L81.43 151.28Z"/><path fill="#eb1c2d" d="M113.62 131.51L340.86 131.51L340.86 132.49L113.62 132.49Z"/><path fill="#134b95" d="M257.6 57.22L232.5 120.18C232.23 120.86 232.26 121.49 232.59 121.95C232.9 122.4 233.5 122.65 234.26 122.65L242.18 122.65C244.62 122.65 245.79 121.37 246.38 119.83L253.81 100.65L254.03 100.08L254.37 100.77L262.68 119.45C263.37 121.23 265.29 122.65 266.98 122.65L280.98 122.65C281.75 122.65 282.37 122.33 282.69 121.77C283.0 121.19 283.0 120.42 282.68 119.6L257.75 57.15Z"/><path fill="#134b95" d="M170.12 57.16L154.48 57.16C152.77 57.16 151.36 58.63 151.36 60.43L151.36 119.59C151.36 120.43 151.68 121.21 152.23 121.8C152.8 122.4 153.55 122.72 154.35 122.72L167.11 122.72C168.83 122.72 170.24 121.26 170.24 119.46L170.24 57.15Z"/><path fill="#134b95" d="M230.91 57.16L183.5 57.16C181.81 57.16 180.45 58.62 180.45 60.42L180.45 64.48C180.45 65.33 180.76 66.12 181.3 66.71C181.85 67.3 182.59 67.62 183.37 67.62L196.5 67.64L196.49 119.59C196.49 120.42 196.8 121.21 197.34 121.8C197.88 122.39 198.63 122.72 199.4 122.72L211.85 122.72C213.53 122.72 214.89 121.25 214.89 119.45L214.88 67.63L227.89 67.62C229.56 67.62 230.93 66.15 230.93 64.36L230.93 57.22Z"/><path fill="#134b95" d="M315.26 57.16L299.65 57.16C297.95 57.16 296.56 58.62 296.56 60.42L296.56 119.59C296.56 120.42 296.88 121.21 297.42 121.8C297.98 122.39 298.73 122.72 299.53 122.72L337.78 122.72C339.47 122.72 340.86 121.25 340.86 119.45L340.86 115.43C340.86 114.59 340.56 113.8 339.99 113.2C339.44 112.62 338.69 112.29 337.9 112.29L321.06 112.29L315.29 112.25L315.29 111.87L315.26 57.22Z"/><path fill="#134b95" d="M42.46 52.2C42.46 39.12 53.01 28.53 66.02 28.53C79.04 28.53 89.58 39.12 89.58 52.2C89.58 65.27 79.04 75.87 66.02 75.87C53.01 75.87 42.46 65.27 42.46 52.2Z"/><path fill="#134b95" d="M151.83 148.99L153.32 148.94C153.38 149.55 153.56 150.2 154.19 150.2C154.76 150.2 154.94 149.7 154.94 149.25C154.94 148.75 154.62 148.32 154.11 147.82L153.21 146.89C152.45 146.15 151.97 145.42 151.97 144.47C151.97 143.27 152.73 142.24 154.23 142.24C155.33 142.24 156.31 142.81 156.39 144.66L154.99 144.72C154.91 144.01 154.73 143.52 154.16 143.52C153.69 143.52 153.44 143.87 153.44 144.36C153.44 144.85 153.92 145.32 154.36 145.76L155.19 146.6C156.02 147.42 156.49 148.18 156.49 149.18C156.49 150.47 155.63 151.48 154.19 151.48C152.76 151.48 151.92 150.54 151.83 148.99Z"/><path fill="#134b95" d="M162.1 149.19L162.1 142.39L163.7 142.39L163.7 149.12C163.7 149.78 164.08 150.09 164.58 150.09C165.15 150.09 165.44 149.71 165.44 149.13L165.44 142.39L166.95 142.39L166.95 149.14C166.96 150.65 165.9 151.49 164.48 151.49C163.03 151.49 162.1 150.76 162.1 149.19Z"/><path fill="#134b95" d="M175.05 146.69C175.65 146.69 175.96 146.17 175.96 145.13C175.96 144.21 175.7 143.71 175.08 143.71L174.4 143.71L174.4 146.69L175.05 146.69M172.81 142.39L175.34 142.39C176.81 142.39 177.5 143.38 177.5 145.09C177.5 146.89 176.82 147.99 175.28 147.99L174.4 147.99L174.4 151.35L172.81 151.35L172.81 142.39Z"/><path fill="#134b95" d="M183.24 142.39L187.35 142.39L187.35 143.73L184.81 143.73L184.81 146.05L186.83 146.05L186.83 147.41L184.81 147.41L184.81 149.99L187.36 149.99L187.36 151.35L183.24 151.35L183.24 142.39Z"/><path fill="#134b95" d="M195.39 146.52C195.95 146.52 196.27 146.1 196.27 145.12C196.27 144.25 196.01 143.72 195.38 143.72L194.67 143.72L194.67 146.52L195.39 146.52M193.09 142.39L195.52 142.39C197.0 142.39 197.86 143.23 197.86 145.0C197.86 146.29 197.44 147.04 196.77 147.35L197.97 151.35L196.32 151.35L195.34 147.71L194.67 147.71L194.67 151.35L193.09 151.35L193.09 142.39Z"/><path fill="#134b95" d="M203.99 137.22L207.14 137.22L208.85 142.97L208.89 142.97L210.63 137.22L213.64 137.22L213.64 151.35L211.42 151.35L211.42 141.11L211.38 141.11L209.68 147.09L207.98 147.09L206.23 141.13L206.19 141.13L206.19 151.35L203.99 151.35L203.99 137.22Z"/><path fill="#134b95" d="M227.92 145.9L226.91 140.04L226.85 140.04L225.8 145.9L227.92 145.9M225.33 137.21L228.73 137.21L231.49 151.35L228.97 151.35L228.32 147.92L225.4 147.92L224.77 151.35L222.45 151.35L225.33 137.21Z"/><path fill="#134b95" d="M241.6 145.69L238.69 137.23L241.35 137.23L243.01 142.71L244.62 137.23L246.99 137.23L244.1 145.69L244.1 151.35L241.6 151.35L241.6 145.69Z"/><path fill="#134b95" d="M260.4 147.87L260.4 140.59C260.4 139.72 259.86 139.19 258.99 139.19C258.06 139.19 257.6 139.78 257.6 140.63L257.6 147.87C257.6 148.72 258.08 149.35 259.01 149.35C259.94 149.35 260.4 148.7 260.4 147.87M255.07 147.82L255.07 140.73C255.07 138.29 256.77 137.01 259.01 137.01C261.19 137.01 262.93 138.16 262.93 140.65L262.93 147.76C262.93 150.32 261.19 151.55 258.99 151.55C256.65 151.55 255.07 150.36 255.07 147.82Z"/><path fill="#134b95" d="M275.7 143.74C276.6 143.74 277.09 143.07 277.09 141.52C277.09 140.16 276.68 139.33 275.68 139.33L274.57 139.33L274.57 143.74L275.7 143.74M272.08 137.22L275.9 137.22C278.24 137.22 279.61 138.55 279.61 141.35C279.61 143.37 278.93 144.56 277.88 145.05L279.77 151.35L277.17 151.35L275.62 145.61L274.57 145.61L274.57 151.35L272.08 151.35L272.08 137.22Z"/><path fill="#134b95" d="M288.73 137.23L291.23 137.23L291.23 151.35L288.73 151.35Z"/><path fill="#134b95" d="M300.15 147.63L302.49 147.55C302.59 148.52 302.87 149.53 303.88 149.53C304.77 149.53 305.05 148.76 305.05 148.04C305.05 147.25 304.55 146.58 303.74 145.78L302.33 144.32C301.12 143.15 300.37 142.0 300.37 140.51C300.37 138.61 301.56 136.99 303.93 136.99C305.66 136.99 307.21 137.9 307.33 140.81L305.13 140.89C305.01 139.78 304.71 139.01 303.82 139.01C303.08 139.01 302.69 139.56 302.69 140.34C302.69 141.11 303.44 141.84 304.13 142.54L305.44 143.86C306.75 145.15 307.48 146.36 307.48 147.93C307.48 149.97 306.13 151.55 303.86 151.55C301.62 151.55 300.29 150.06 300.15 147.63Z"/><path fill="#134b95" d="M318.23 139.35L315.56 139.35L315.56 137.23L323.4 137.23L323.4 139.35L320.75 139.35L320.75 151.35L318.23 151.35L318.23 139.35Z"/><path fill="#134b95" d="M336.25 145.9L335.24 140.04L335.18 140.04L334.13 145.9L336.25 145.9M333.66 137.21L337.07 137.21L339.82 151.35L337.3 151.35L336.65 147.92L333.74 147.92L333.1 151.35L330.78 151.35L333.66 137.21Z"/></svg></div>
+      <div class="powered">
+        <span class="lbl">Powered by</span>
+        <span class="stk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 425.81 217.1" role="img" aria-label="Softtek"><path fill="#002855" d="M289.58 0.0C292.74 0.0 295.27 2.53 295.27 5.69C295.27 8.85 292.74 11.38 289.58 11.38C286.42 11.38 283.89 8.85 283.89 5.69C283.89 2.53 286.42 0.0 289.58 0.0Z"/><path fill="#002855" d="M288.53 115.43C291.69 115.43 294.22 117.96 294.22 121.12C294.22 124.28 291.69 126.81 288.53 126.81C285.37 126.81 282.84 124.28 282.84 121.12C282.91 117.96 285.44 115.43 288.53 115.43Z"/><path fill="#002855" d="M297.52 101.02C300.61 101.02 303.21 103.55 303.21 106.71C303.21 109.87 300.68 112.4 297.52 112.4C294.36 112.4 291.83 109.8 291.83 106.71C291.83 103.55 294.43 101.02 297.52 101.02Z"/><path fill="#002855" d="M290.22 57.75C293.38 57.75 295.91 60.28 295.91 63.44C295.91 66.6 293.38 69.13 290.22 69.13C287.06 69.13 284.53 66.6 284.53 63.44C284.6 60.28 287.13 57.75 290.22 57.75Z"/><path fill="#002855" d="M298.93 72.15C302.09 72.15 304.62 74.75 304.62 77.84C304.62 80.93 302.09 83.53 298.93 83.53C295.77 83.53 293.24 81.0 293.24 77.84C293.24 74.68 295.77 72.15 298.93 72.15Z"/><path fill="#002855" d="M277.85 28.87C281.01 28.87 283.54 31.4 283.54 34.56C283.54 37.72 281.01 40.25 277.85 40.25C274.69 40.25 272.16 37.72 272.16 34.56C272.23 31.47 274.76 28.87 277.85 28.87Z"/><path fill="#002855" d="M281.51 14.47C284.67 14.47 287.2 17.0 287.2 20.16C287.2 23.32 284.67 25.85 281.51 25.85C278.35 25.85 275.82 23.32 275.82 20.16C275.82 17.0 278.35 14.47 281.51 14.47Z"/><path fill="#002855" d="M280.03 43.35C283.19 43.35 285.72 45.88 285.72 49.04C285.72 52.2 283.19 54.73 280.03 54.73C276.87 54.73 274.34 52.13 274.34 49.04C274.34 45.95 276.87 43.35 280.03 43.35Z"/><path fill="#002855" d="M301.46 86.62C304.62 86.62 307.15 89.22 307.15 92.31C307.15 95.4 304.62 98.0 301.46 98.0C298.3 98.0 295.77 95.47 295.77 92.31C295.84 89.22 298.37 86.62 301.46 86.62Z"/><path fill="#84BD00" d="M272.86 0.0C276.02 0.0 278.55 2.53 278.55 5.69C278.55 8.85 276.02 11.38 272.86 11.38C269.7 11.38 267.17 8.85 267.17 5.69C267.17 2.6 269.7 0.0 272.86 0.0Z"/><path fill="#84BD00" d="M271.88 115.43C275.04 115.43 277.57 117.96 277.57 121.12C277.57 124.28 275.04 126.81 271.88 126.81C268.72 126.81 266.19 124.28 266.19 121.12C266.19 117.96 268.72 115.43 271.88 115.43Z"/><path fill="#84BD00" d="M305.25 115.43C308.41 115.43 310.94 117.96 310.94 121.12C310.94 124.28 308.41 126.81 305.25 126.81C302.09 126.81 299.56 124.28 299.56 121.12C299.56 117.96 302.16 115.43 305.25 115.43Z"/><path fill="#84BD00" d="M306.31 0.0C309.47 0.0 312.0 2.53 312.0 5.69C312.0 8.85 309.47 11.38 306.31 11.38C303.15 11.38 300.62 8.85 300.62 5.69C300.62 2.6 303.15 0.0 306.31 0.0Z"/><path fill="#84BD00" d="M234.65 86.62C237.74 86.62 240.34 89.22 240.34 92.31C240.34 95.4 237.81 98.0 234.65 98.0C231.49 98.0 228.96 95.47 228.96 92.31C228.96 89.15 231.49 86.62 234.65 86.62Z"/><path fill="#84BD00" d="M251.37 86.62C254.53 86.62 257.06 89.22 257.06 92.31C257.06 95.4 254.53 98.0 251.37 98.0C248.21 98.0 245.68 95.47 245.68 92.31C245.68 89.15 248.21 86.62 251.37 86.62Z"/><path fill="#84BD00" d="M268.09 86.62C271.25 86.62 273.78 89.22 273.78 92.31C273.78 95.4 271.25 98.0 268.09 98.0C264.93 98.0 262.4 95.47 262.4 92.31C262.4 89.15 264.93 86.62 268.09 86.62Z"/><path fill="#84BD00" d="M284.81 86.62C287.97 86.62 290.5 89.22 290.5 92.31C290.5 95.4 287.97 98.0 284.81 98.0C281.65 98.0 279.12 95.47 279.12 92.31C279.12 89.22 281.65 86.62 284.81 86.62Z"/><path fill="#84BD00" d="M318.18 86.62C321.27 86.62 323.87 89.22 323.87 92.31C323.87 95.4 321.34 98.0 318.18 98.0C315.02 98.0 312.49 95.47 312.49 92.31C312.49 89.15 315.09 86.62 318.18 86.62Z"/><path fill="#84BD00" d="M334.9 86.62C338.06 86.62 340.59 89.22 340.59 92.31C340.59 95.4 338.06 98.0 334.9 98.0C331.74 98.0 329.21 95.47 329.21 92.31C329.21 89.15 331.74 86.62 334.9 86.62Z"/><path fill="#84BD00" d="M247.43 101.02C250.59 101.02 253.12 103.55 253.12 106.71C253.12 109.87 250.59 112.4 247.43 112.4C244.27 112.4 241.74 109.8 241.74 106.71C241.74 103.62 244.27 101.02 247.43 101.02Z"/><path fill="#84BD00" d="M264.15 101.02C267.31 101.02 269.84 103.55 269.84 106.71C269.84 109.87 267.31 112.4 264.15 112.4C260.99 112.4 258.46 109.8 258.46 106.71C258.46 103.62 260.99 101.02 264.15 101.02Z"/><path fill="#84BD00" d="M280.8 101.02C283.96 101.02 286.49 103.55 286.49 106.71C286.49 109.87 283.96 112.4 280.8 112.4C277.64 112.4 275.11 109.8 275.11 106.71C275.18 103.55 277.71 101.02 280.8 101.02Z"/><path fill="#84BD00" d="M314.24 101.02C317.4 101.02 319.93 103.55 319.93 106.71C319.93 109.87 317.4 112.4 314.24 112.4C311.08 112.4 308.55 109.8 308.55 106.71C308.55 103.55 311.08 101.02 314.24 101.02Z"/><path fill="#84BD00" d="M330.96 101.02C334.12 101.02 336.65 103.55 336.65 106.71C336.65 109.87 334.12 112.4 330.96 112.4C327.8 112.4 325.27 109.8 325.27 106.71C325.27 103.62 327.8 101.02 330.96 101.02Z"/><path fill="#84BD00" d="M240.13 57.75C243.22 57.75 245.82 60.28 245.82 63.44C245.82 66.6 243.29 69.13 240.13 69.13C236.97 69.13 234.44 66.6 234.44 63.44C234.44 60.28 236.97 57.75 240.13 57.75Z"/><path fill="#84BD00" d="M256.85 57.75C260.01 57.75 262.54 60.28 262.54 63.44C262.54 66.6 260.01 69.13 256.85 69.13C253.69 69.13 251.16 66.6 251.16 63.44C251.16 60.28 253.69 57.75 256.85 57.75Z"/><path fill="#84BD00" d="M273.5 57.75C276.66 57.75 279.19 60.28 279.19 63.44C279.19 66.6 276.66 69.13 273.5 69.13C270.34 69.13 267.81 66.6 267.81 63.44C267.88 60.28 270.41 57.75 273.5 57.75Z"/><path fill="#84BD00" d="M306.94 57.75C310.1 57.75 312.63 60.28 312.63 63.44C312.63 66.6 310.1 69.13 306.94 69.13C303.78 69.13 301.25 66.6 301.25 63.44C301.25 60.28 303.85 57.75 306.94 57.75Z"/><path fill="#84BD00" d="M323.66 57.75C326.82 57.75 329.35 60.28 329.35 63.44C329.35 66.6 326.82 69.13 323.66 69.13C320.5 69.13 317.97 66.6 317.97 63.44C317.97 60.28 320.5 57.75 323.66 57.75Z"/><path fill="#84BD00" d="M340.38 57.75C343.47 57.75 346.07 60.28 346.07 63.44C346.07 66.6 343.54 69.13 340.38 69.13C337.22 69.13 334.69 66.6 334.69 63.44C334.69 60.28 337.22 57.75 340.38 57.75Z"/><path fill="#84BD00" d="M232.05 72.15C235.21 72.15 237.74 74.75 237.74 77.84C237.74 80.93 235.21 83.53 232.05 83.53C228.89 83.53 226.36 81.0 226.36 77.84C226.43 74.68 228.96 72.15 232.05 72.15Z"/><path fill="#84BD00" d="M248.77 72.15C251.93 72.15 254.46 74.75 254.46 77.84C254.46 80.93 251.93 83.53 248.77 83.53C245.61 83.53 243.08 81.0 243.08 77.84C243.15 74.68 245.68 72.15 248.77 72.15Z"/><path fill="#84BD00" d="M265.49 72.15C268.65 72.15 271.18 74.75 271.18 77.84C271.18 80.93 268.65 83.53 265.49 83.53C262.33 83.53 259.8 81.0 259.8 77.84C259.8 74.68 262.33 72.15 265.49 72.15Z"/><path fill="#84BD00" d="M282.21 72.15C285.37 72.15 287.9 74.75 287.9 77.84C287.9 80.93 285.37 83.53 282.21 83.53C279.05 83.53 276.52 81.0 276.52 77.84C276.52 74.68 279.05 72.15 282.21 72.15Z"/><path fill="#84BD00" d="M315.58 72.15C318.74 72.15 321.27 74.75 321.27 77.84C321.27 80.93 318.74 83.53 315.58 83.53C312.42 83.53 309.89 81.0 309.89 77.84C309.96 74.68 312.49 72.15 315.58 72.15Z"/><path fill="#84BD00" d="M332.3 72.15C335.46 72.15 337.99 74.75 337.99 77.84C337.99 80.93 335.46 83.53 332.3 83.53C329.14 83.53 326.61 81.0 326.61 77.84C326.61 74.68 329.21 72.15 332.3 72.15Z"/><path fill="#84BD00" d="M349.02 72.15C352.18 72.15 354.71 74.75 354.71 77.84C354.71 80.93 352.18 83.53 349.02 83.53C345.86 83.53 343.33 81.0 343.33 77.84C343.33 74.68 345.86 72.15 349.02 72.15Z"/><path fill="#84BD00" d="M244.48 28.87C247.64 28.87 250.17 31.4 250.17 34.56C250.17 37.72 247.64 40.25 244.48 40.25C241.32 40.25 238.79 37.72 238.79 34.56C238.79 31.4 241.32 28.87 244.48 28.87Z"/><path fill="#84BD00" d="M261.2 28.87C264.36 28.87 266.89 31.4 266.89 34.56C266.89 37.72 264.36 40.25 261.2 40.25C258.04 40.25 255.51 37.72 255.51 34.56C255.51 31.4 258.04 28.87 261.2 28.87Z"/><path fill="#84BD00" d="M294.57 28.87C297.73 28.87 300.26 31.4 300.26 34.56C300.26 37.72 297.73 40.25 294.57 40.25C291.41 40.25 288.88 37.72 288.88 34.56C288.88 31.4 291.41 28.87 294.57 28.87Z"/><path fill="#84BD00" d="M311.29 28.87C314.45 28.87 316.98 31.4 316.98 34.56C316.98 37.72 314.45 40.25 311.29 40.25C308.13 40.25 305.6 37.72 305.6 34.56C305.6 31.4 308.13 28.87 311.29 28.87Z"/><path fill="#84BD00" d="M328.01 28.87C331.17 28.87 333.7 31.4 333.7 34.56C333.7 37.72 331.17 40.25 328.01 40.25C324.85 40.25 322.32 37.72 322.32 34.56C322.32 31.4 324.85 28.87 328.01 28.87Z"/><path fill="#84BD00" d="M248.06 14.47C251.22 14.47 253.75 17.0 253.75 20.16C253.75 23.32 251.22 25.85 248.06 25.85C244.9 25.85 242.37 23.32 242.37 20.16C242.37 17.0 244.97 14.47 248.06 14.47Z"/><path fill="#84BD00" d="M264.79 14.47C267.95 14.47 270.48 17.0 270.48 20.16C270.48 23.32 267.95 25.85 264.79 25.85C261.63 25.85 259.1 23.32 259.1 20.16C259.1 17.0 261.63 14.47 264.79 14.47Z"/><path fill="#84BD00" d="M298.23 14.47C301.39 14.47 303.92 17.0 303.92 20.16C303.92 23.32 301.39 25.85 298.23 25.85C295.07 25.85 292.54 23.32 292.54 20.16C292.54 17.0 295.07 14.47 298.23 14.47Z"/><path fill="#84BD00" d="M314.88 14.47C317.97 14.47 320.57 17.0 320.57 20.16C320.57 23.32 318.04 25.85 314.88 25.85C311.72 25.85 309.19 23.32 309.19 20.16C309.26 17.0 311.79 14.47 314.88 14.47Z"/><path fill="#84BD00" d="M331.6 14.47C334.76 14.47 337.29 17.0 337.29 20.16C337.29 23.32 334.76 25.85 331.6 25.85C328.44 25.85 325.91 23.32 325.91 20.16C325.91 17.0 328.44 14.47 331.6 14.47Z"/><path fill="#84BD00" d="M229.87 43.35C232.96 43.35 235.56 45.88 235.56 49.04C235.56 52.2 233.03 54.73 229.87 54.73C226.71 54.73 224.18 52.13 224.18 49.04C224.25 45.95 226.78 43.35 229.87 43.35Z"/><path fill="#84BD00" d="M246.59 43.35C249.68 43.35 252.28 45.88 252.28 49.04C252.28 52.2 249.75 54.73 246.59 54.73C243.43 54.73 240.9 52.13 240.9 49.04C240.9 45.95 243.5 43.35 246.59 43.35Z"/><path fill="#84BD00" d="M263.31 43.35C266.47 43.35 269.0 45.88 269.0 49.04C269.0 52.2 266.47 54.73 263.31 54.73C260.15 54.73 257.62 52.13 257.62 49.04C257.62 45.95 260.15 43.35 263.31 43.35Z"/><path fill="#84BD00" d="M296.75 43.35C299.91 43.35 302.44 45.88 302.44 49.04C302.44 52.2 299.91 54.73 296.75 54.73C293.59 54.73 291.06 52.13 291.06 49.04C291.06 45.95 293.59 43.35 296.75 43.35Z"/><path fill="#84BD00" d="M313.4 43.35C316.49 43.35 319.09 45.88 319.09 49.04C319.09 52.2 316.56 54.73 313.4 54.73C310.24 54.73 307.71 52.13 307.71 49.04C307.78 45.95 310.31 43.35 313.4 43.35Z"/><path fill="#84BD00" d="M330.12 43.35C333.28 43.35 335.81 45.88 335.81 49.04C335.81 52.2 333.28 54.73 330.12 54.73C326.96 54.73 324.43 52.13 324.43 49.04C324.43 45.95 327.03 43.35 330.12 43.35Z"/><path fill="#84BD00" d="M346.84 43.35C350.0 43.35 352.53 45.88 352.53 49.04C352.53 52.2 350.0 54.73 346.84 54.73C343.68 54.73 341.15 52.13 341.15 49.04C341.15 45.95 343.68 43.35 346.84 43.35Z"/><path fill="#002855" d="M34.92 143.04C28.32 143.04 21.64 146.55 21.64 153.86C21.64 162.92 29.72 163.98 37.1 165.38C49.82 168.61 68.43 172.19 68.43 189.06C68.43 209.86 50.52 217.09 32.53 217.09C13.49 217.08 0.0 209.64 0.63 188.49L18.76 188.49C18.06 197.76 23.4 204.02 32.74 204.02C39.98 204.02 49.53 201.84 49.53 192.92C49.53 183.08 37.52 182.38 30.35 180.56C18.62 177.68 2.74 172.34 2.74 157.59C2.74 138.48 20.23 129.98 37.38 129.98C53.61 129.98 66.18 138.83 66.18 155.62L48.83 155.69C48.06 147.19 43.56 143.04 34.92 143.04Z"/><path fill="#002855" d="M107.91 217.08C89.08 217.08 77.77 204.57 77.77 186.31C77.77 168.05 89.08 155.54 107.91 155.54C126.74 155.54 138.12 168.05 138.12 186.31C138.05 204.58 126.74 217.08 107.91 217.08M107.91 205.49C118.45 205.49 120.2 195.51 120.2 186.31C120.2 177.11 118.51 167.13 107.91 167.13C97.31 167.13 95.62 177.11 95.62 186.31C95.62 195.51 97.31 205.49 107.91 205.49Z"/><path fill="#002855" d="M165.17 157.16L175.71 157.16L175.71 168.75L165.17 168.75L165.17 215.4L147.82 215.4L147.82 168.75L139.18 168.75L139.18 157.16L147.82 157.16C147.33 140.65 148.87 129.97 167.7 129.97C170.86 129.97 174.02 130.32 177.18 130.81L177.18 141.63C164.96 140.22 164.67 145.77 165.17 157.16Z"/><path fill="#002855" d="M191.72 145.64L209.0 139.39L209.0 157.16L222.07 157.16L222.07 168.75L209.0 168.75L209.0 195.73C209.0 203.39 210.12 205.5 216.17 205.5C218.0 205.5 219.82 205.29 221.72 205.15L221.72 215.34C219.75 216.25 210.55 217.1 208.09 217.1C194.6 217.1 191.72 210.0 191.72 197.36L191.72 168.77L180.06 168.77L180.06 157.18L191.72 157.18L191.72 145.66L191.72 145.64Z"/><path fill="#002855" d="M238.86 145.64L256.21 139.39L256.21 157.16L269.28 157.16L269.28 168.75L256.21 168.75L256.21 195.73C256.21 203.39 257.33 205.5 263.38 205.5C265.21 205.5 267.1 205.29 268.93 205.15L268.93 215.34C266.96 216.25 257.69 217.1 255.3 217.1C241.81 217.1 238.93 210.0 238.93 197.36L238.93 168.77L227.27 168.77L227.27 157.18L238.93 157.18L238.93 145.66L238.86 145.66L238.86 145.64Z"/><path fill="#002855" d="M290.5 190.95C290.5 198.47 291.55 205.49 300.48 205.49C306.52 205.49 309.54 203.31 311.16 197.97L326.76 197.97C325.28 212.3 314.04 217.08 300.49 217.08C280.54 217.08 272.6 205.84 272.6 186.45C272.6 168.96 282.79 155.54 300.49 155.54C311.38 155.54 320.44 159.26 325.29 169.45C326.91 172.68 327.75 176.12 328.17 179.85C328.66 183.43 328.66 187.16 328.66 191.02L290.51 190.95L290.5 190.95M310.73 179.36C310.73 173.04 308.97 167.14 300.47 167.14C292.46 167.14 290.7 173.04 290.49 179.36L310.72 179.36L310.73 179.36Z"/><path fill="#002855" d="M353.31 180.97L370.38 156.53L389.7 156.53L369.74 182.03L390.96 215.47L370.73 215.47L353.31 183.57L353.09 183.78L353.09 215.47L335.81 215.47L335.81 131.66L353.09 131.66L353.09 180.76L353.31 180.97Z"/><path fill="#002855" d="M399.67 144.02C399.67 151.26 405.5 157.16 412.74 157.16C419.98 157.16 425.81 151.26 425.81 144.02C425.81 136.78 419.98 130.88 412.74 130.88C405.5 130.88 399.67 136.78 399.67 144.02M401.99 144.02C401.99 138.05 406.84 133.2 412.74 133.2C418.64 133.2 423.49 138.05 423.49 144.02C423.49 149.99 418.64 154.84 412.74 154.84C406.84 154.84 401.99 149.99 401.99 144.02Z"/><path fill="#002855" d="M410.35 142.83L412.11 142.83C413.23 142.83 414.01 142.76 414.29 142.69C414.57 142.62 414.78 142.41 414.99 142.2C415.13 141.92 415.27 141.64 415.27 141.29C415.27 140.87 415.13 140.59 414.92 140.31C414.71 140.03 414.36 139.89 414.01 139.82L410.36 139.82L410.36 142.84L410.35 142.83M407.96 149.78L407.96 137.77L413.02 137.77C414.28 137.77 415.2 137.91 415.83 138.12C416.39 138.33 416.88 138.75 417.24 139.24C417.59 139.8 417.8 140.43 417.8 141.14C417.8 142.05 417.52 142.83 417.03 143.39C416.47 143.95 415.7 144.37 414.64 144.51C415.13 144.79 415.55 145.14 415.9 145.49C416.25 145.84 416.67 146.47 417.23 147.46L418.71 149.78L415.83 149.78L414.07 147.18C413.44 146.27 413.02 145.7 412.81 145.42C412.6 145.21 412.32 145.0 412.04 144.93C411.76 144.86 411.41 144.79 410.85 144.79L410.36 144.79L410.36 149.78L407.97 149.78L407.96 149.78Z"/></svg></span>
+      </div>
+    </div>
+  </div>
+
+  <header class="titlebar">
+    <div class="tc-wrap">
+      <div>
+        <div class="tc-eyebrow">VITAL Supermayorista · Plataforma Analítica</div>
+        <div class="tc-title">Tablero de Control del Proyecto</div>
+        <div class="tc-sub">Seguimiento integral de cronograma, entregables, riesgos y tareas.</div>
+      </div>
+      <div class="tc-hright">
+        <div class="tc-actions">
+          <button class="hbtn primary" id="loadBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            Cargar Excel
+          </button>
+          <input type="file" id="fileInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="sr">
+          <button class="hbtn theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
+            <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <span class="lbl-light">Modo oscuro</span><span class="lbl-dark">Modo claro</span>
+          </button>
+        </div>
+        <div class="tc-meta" id="tc-meta"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tc-wrap">
+    <div class="srcbar" id="srcbar"></div>
+    <div class="loadmsg" id="loadmsg" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="filters">
+    <div class="tc-wrap">
+      <div class="filters-in">
+        <div class="fgroup">
+          <span class="flabel">Fase</span>
+          <div id="f-fase" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="fdiv"></div>
+        <div class="fgroup">
+          <span class="flabel">Estado</span>
+          <div id="f-estado" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="fclear">
+          <span class="fcount" id="fcount"></span>
+          <button class="freset" id="freset" type="button">Limpiar filtros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc-wrap">
+    <div class="kpis" id="kpis"></div>
+
+    <section>
+      <div class="tc-sechead">
+        <span class="tc-secnum">1</span>
+        <span class="tc-sectitle">Cronograma · avance por fase</span>
+        <span class="tc-secnote">Barra = avance real · línea <b>meta</b> = esperado</span>
+      </div>
+      <div class="card">
+        <div class="cron-head" id="cron-head">
+          <div>Fase</div><div>Fechas</div><div>Avance real vs. meta</div><div class="r">Peso</div><div class="r">Dif.</div>
+        </div>
+        <div id="cron-body"></div>
+        <div class="cron-foot" id="cron-foot"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h3>Línea de tiempo de las fases</h3>
+        <p class="cardnote" id="gantt-note"></p>
+        <div class="gantt-months">
+          <div></div>
+          <div class="gantt-scale" id="gantt-scale"></div>
+        </div>
+        <div id="gantt-body"></div>
+        <div class="gantt-legend">
+          <span><i class="gantt-key" style="background:var(--good)"></i> Fase completada (100%)</span>
+          <span><i class="gantt-key" style="background:var(--brand)"></i> Avance real</span>
+          <span><i class="gantt-key" style="background:var(--track);box-shadow:inset 0 0 0 1px var(--hair-strong)"></i> Pendiente</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2" style="margin-top:34px;">
+      <section style="margin-top:0;">
+        <div class="tc-sechead"><span class="tc-secnum">2</span><span class="tc-sectitle">Entregables</span></div>
+        <div class="card">
+          <h3>Avance por entregable · rol responsable</h3>
+          <p class="cardnote" id="del-note"></p>
+          <div id="del-list"></div>
+        </div>
+      </section>
+
+      <section style="margin-top:0;">
+        <div class="tc-sechead"><span class="tc-secnum">3</span><span class="tc-sectitle">Riesgos</span></div>
+        <div class="card">
+          <div class="nofilter" id="risk-nofilter"></div>
+          <h3>Matriz impacto × probabilidad</h3>
+          <p class="cardnote" id="risk-note"></p>
+          <div class="matrix" id="risk-matrix"></div>
+          <h3 style="margin-top:22px;">Detalle de riesgos y mitigación</h3>
+          <div id="risk-list" style="margin-top:12px;"></div>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <div class="tc-sechead">
+        <span class="tc-secnum">4</span><span class="tc-sectitle">Tareas</span>
+        <span class="tc-secnote" id="sol-note"></span>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Estado de las tareas</h3>
+          <p class="cardnote">Distribución por estado de la fase seleccionada</p>
+          <div class="donut-wrap" id="donut-wrap"></div>
+          <div class="sol-insight" id="sol-insight"></div>
+        </div>
+        <div class="card">
+          <h3>Detalle de tareas</h3>
+          <p class="cardnote" id="sol-detail-note"></p>
+          <div id="sol-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer" id="footer"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var DEFAULT_DATA = {
+ "fases": [
+  {
+   "id": 1,
+   "nom": "Gestión de Proyecto",
+   "sub": "",
+   "s": [
+    2021,
+    10,
+    15
+   ],
+   "e": [
+    2022,
+    3,
+    30
+   ],
+   "dias": 166,
+   "esp": 1.0,
+   "real": 1.0,
+   "peso": 0.05,
+   "com": "El día de mañana se hará entrega del Plan de Gestión de Proyectos"
+  },
+  {
+   "id": 2,
+   "nom": "Plataforma Analítica",
+   "sub": "Azure + Knime",
+   "s": [
+    2021,
+    10,
+    18
+   ],
+   "e": [
+    2022,
+    2,
+    31
+   ],
+   "dias": 133,
+   "esp": 1.0,
+   "real": 1.0,
+   "peso": 0.1,
+   "com": "No se ha definido la arquitectura de las soluciones"
+  },
+  {
+   "id": 3,
+   "nom": "Construcción CDM",
+   "sub": "DWH",
+   "s": [
+    2021,
+    11,
+    15
+   ],
+   "e": [
+    2022,
+    3,
+    30
+   ],
+   "dias": 136,
+   "esp": 1.0,
+   "real": 0.98,
+   "peso": 0.4,
+   "com": "No se ha iniciado el desarrollo"
+  },
+  {
+   "id": 4,
+   "nom": "Negocio - Construcción Tableros",
+   "sub": "",
+   "s": [
+    2022,
+    0,
+    1
+   ],
+   "e": [
+    2022,
+    3,
+    30
+   ],
+   "dias": 119,
+   "esp": 1.0,
+   "real": 0.98,
+   "peso": 0.3,
+   "com": "No se ha iniciado el desarrollo"
+  },
+  {
+   "id": 5,
+   "nom": "Cambio y Conocimiento",
+   "sub": "",
+   "s": [
+    2021,
+    11,
+    10
+   ],
+   "e": [
+    2022,
+    3,
+    30
+   ],
+   "dias": 141,
+   "esp": 1.0,
+   "real": 0.98,
+   "peso": 0.1,
+   "com": "Fase no iniciada"
+  },
+  {
+   "id": 6,
+   "nom": "Centro de Analitica",
+   "sub": "",
+   "s": [
+    2022,
+    1,
+    20
+   ],
+   "e": [
+    2022,
+    3,
+    30
+   ],
+   "dias": 69,
+   "esp": 1.0,
+   "real": 1.0,
+   "peso": 0.05,
+   "com": "Fase no iniciada"
+  }
+ ],
+ "del": [
+  {
+   "id": 1,
+   "nom": "Planeación del Proyecto",
+   "rol": "Gerente de Proyectos · apoyo Gerente de Proyectos de Apoyo",
+   "pct": 1.0,
+   "entrega": "Hito 1",
+   "fase": 1
+  },
+  {
+   "id": 2,
+   "nom": "Arquitectura",
+   "rol": "Gerente de Proyectos · apoyo Gerente de Proyectos de Apoyo",
+   "pct": 1.0,
+   "entrega": "Hito 1",
+   "fase": 1
+  },
+  {
+   "id": 3,
+   "nom": "Metodología de Trabajo",
+   "rol": "Líder Funcional · apoyo Consutor Backend",
+   "pct": 1.0,
+   "entrega": "Hito 1",
+   "fase": 2
+  },
+  {
+   "id": 4,
+   "nom": "NPL-Recaudo S1 - Estructura de Datos Recaudo - CDM",
+   "rol": "Líder Técnico · apoyo Consutor Backend",
+   "pct": 0.98,
+   "entrega": "Hito 2",
+   "fase": 2
+  },
+  {
+   "id": 5,
+   "nom": "NPL-Recaudo S2 - Construcción de Tableros Operación Comercial",
+   "rol": "Líder Técnico · apoyo Gerente de Proyectos de Apoyo",
+   "pct": 0.91,
+   "entrega": "Hito 2",
+   "fase": 1
+  },
+  {
+   "id": 6,
+   "nom": "NPL-Recaudo S3 - Estructura de Datos Metas",
+   "rol": "Líder Técnico · apoyo Consultores Fullstack",
+   "pct": 0.96,
+   "entrega": "Hito 2",
+   "fase": 2
+  },
+  {
+   "id": 7,
+   "nom": "NPL-Contactabilidad S1 - Estructura de Datos CDM",
+   "rol": "Líder Técnico · apoyo Gerente de Proyectos de Apoyo",
+   "pct": 0.88,
+   "entrega": "Hito 2",
+   "fase": 2
+  },
+  {
+   "id": 8,
+   "nom": "NPL-Contactabilidad S2 - Construcción de Tableros - Indicadores",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.54,
+   "entrega": "Hito 2",
+   "fase": 4
+  },
+  {
+   "id": 9,
+   "nom": "NPL-Contactabilidad S3 - Estructura de Datos - CDM (Whatsapp-Chat-otros)",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.8,
+   "entrega": "Hito 2",
+   "fase": 4
+  },
+  {
+   "id": 10,
+   "nom": "NPL-Desempeño S1 - Estructura de Datos - CDM (Modelo Comercial)",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.9,
+   "entrega": "Hito 2",
+   "fase": 4
+  },
+  {
+   "id": 11,
+   "nom": "NPL-Desempeño S2 - Construcción de Tablero - Indicadores",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.5,
+   "entrega": "Hito 2",
+   "fase": 4
+  },
+  {
+   "id": 12,
+   "nom": "Centro de Excelencia",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.95,
+   "entrega": "Hito 2",
+   "fase": 4
+  },
+  {
+   "id": 13,
+   "nom": "Gestión de Cambio y Conocimiento",
+   "rol": "Líder Técnico · apoyo Consultores Backend & Frontend",
+   "pct": 0.9,
+   "entrega": "Hito 2",
+   "fase": 4
+  }
+ ],
+ "risks": [
+  {
+   "id": 1,
+   "nom": "Retraso en el aprovisionamiento Azure",
+   "mit": "Realizar el aprovisionamiento de la infraestructura acorde con la envergadura del proyecto a ejecutar",
+   "imp": "b",
+   "impLbl": "Bajo",
+   "prob": 0.3,
+   "estado": "Controlado"
+  },
+  {
+   "id": 2,
+   "nom": "Desfase en el presupuesto de infraestructura inicial",
+   "mit": "Mantener supervisión controlada del consumo de Azure",
+   "imp": "m",
+   "impLbl": "Medio",
+   "prob": 0.3,
+   "estado": "Controlado"
+  },
+  {
+   "id": 3,
+   "nom": "No acceso a las fuentes de información",
+   "mit": "Continuar con la gestión y usar los niveles de escalamiento",
+   "imp": "m",
+   "impLbl": "Medio",
+   "prob": 0.5,
+   "estado": "Controlado"
+  },
+  {
+   "id": 4,
+   "nom": "Multiples aprobadores de los entregables",
+   "mit": "Definir un solo responsable de la aprobación de los entregables",
+   "imp": "a",
+   "impLbl": "Alto",
+   "prob": 0.3,
+   "estado": "Controlado"
+  },
+  {
+   "id": 5,
+   "nom": "Alcance de los MPV",
+   "mit": "Acotar el alcance datos e indicadores de los tableros",
+   "imp": "a",
+   "impLbl": "Alto",
+   "prob": 0.7,
+   "estado": "Controlado"
+  },
+  {
+   "id": 6,
+   "nom": "Retraso en cierre de los entregables contractuales",
+   "mit": "Continuar con la gestión y usar los niveles de escalamiento",
+   "imp": "m",
+   "impLbl": "Medio",
+   "prob": 0.9,
+   "estado": "Controlado"
+  },
+  {
+   "id": 7,
+   "nom": "Deserción de integrante(s) del equipo de trabajo",
+   "mit": "Contar con un par profesional de reserva para mitigar cualquier eventualidad",
+   "imp": "m",
+   "impLbl": "Medio",
+   "prob": 0.5,
+   "estado": "Controlado"
+  },
+  {
+   "id": 8,
+   "nom": "Disponibilidad de los miembros del equipo",
+   "mit": "Encontrar los backups de los recursos",
+   "imp": "m",
+   "impLbl": "Medio",
+   "prob": 0.5,
+   "estado": "Controlado"
+  },
+  {
+   "id": 9,
+   "nom": "Duplicación de esfuerzos",
+   "mit": "Alinear los equipos internos y del proyecto que hacen analisis de información",
+   "imp": "a",
+   "impLbl": "Alto",
+   "prob": 0.5,
+   "estado": "Controlado"
+  }
+ ],
+ "sol": [
+  {
+   "id": 1,
+   "nom": "Aprovisionamiento de Infraestructura",
+   "fecha": [
+    2021,
+    9,
+    19
+   ],
+   "cierre": null,
+   "est": "proc",
+   "estLbl": "En Proceso",
+   "fase": 2
+  },
+  {
+   "id": 2,
+   "nom": "Habilitar permisos Fuentes de Información",
+   "fecha": [
+    2021,
+    9,
+    14
+   ],
+   "cierre": null,
+   "est": "fin",
+   "estLbl": "Finalizado",
+   "fase": 2
+  },
+  {
+   "id": 3,
+   "nom": "Acceso a la documentación de los sitemas de información",
+   "fecha": [
+    2021,
+    9,
+    14
+   ],
+   "cierre": null,
+   "est": "fin",
+   "estLbl": "Finalizado",
+   "fase": 2
+  },
+  {
+   "id": 4,
+   "nom": "Solicitud de sesiones de validación con usuarios finales",
+   "fecha": [
+    2021,
+    9,
+    13
+   ],
+   "cierre": null,
+   "est": "proc",
+   "estLbl": "En Proceso",
+   "fase": 2
+  },
+  {
+   "id": 5,
+   "nom": "Definición de Equipo de trabajo",
+   "fecha": [
+    2021,
+    9,
+    14
+   ],
+   "cierre": null,
+   "est": "fin",
+   "estLbl": "Finalizado",
+   "fase": 2
+  },
+  {
+   "id": 6,
+   "nom": "Determinar Nombre del Proyecto",
+   "fecha": [
+    2021,
+    9,
+    27
+   ],
+   "cierre": null,
+   "est": "no",
+   "estLbl": "No iniciado",
+   "fase": 2
+  },
+  {
+   "id": 7,
+   "nom": "Acompañamiento de roles de manejo de imagen",
+   "fecha": [
+    2021,
+    9,
+    20
+   ],
+   "cierre": null,
+   "est": "no",
+   "estLbl": "No iniciado",
+   "fase": 2
+  },
+  {
+   "id": 8,
+   "nom": "Hacer la socialización de los avances con los involucrados",
+   "fecha": [
+    2021,
+    9,
+    25
+   ],
+   "cierre": null,
+   "est": "proc",
+   "estLbl": "En Proceso",
+   "fase": 2
+  },
+  {
+   "id": 10,
+   "nom": "Definir los criterios de aceptación de los entregables de las siguientes Fases",
+   "fecha": [
+    2021,
+    9,
+    25
+   ],
+   "cierre": null,
+   "est": "proc",
+   "estLbl": "En Proceso",
+   "fase": 2
+  }
+ ],
+ "src": "Datos de ejemplo (PROY-REFINANCIA)"
+};
+
+  /* =================================================================
+     1. LECTOR DE XLSX  (ZIP + DecompressionStream + DOMParser)
+        Sin librerias externas: el .xlsx es un ZIP con XML dentro.
+     ================================================================= */
+  var dec = function (b) { return new TextDecoder("utf-8").decode(b); };
+
+  function inflateRaw(bytes) {
+    var ds = new DecompressionStream("deflate-raw");
+    var st = new Blob([bytes]).stream().pipeThrough(ds);
+    return new Response(st).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+  }
+
+  function unzip(buf) {
+    var dv = new DataView(buf), u8 = new Uint8Array(buf);
+    var eocd = -1, min = Math.max(0, u8.length - 65558);
+    for (var i = u8.length - 22; i >= min; i--) {
+      if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error("El archivo no es un .xlsx válido (no se encontró la estructura ZIP).");
+    var count = dv.getUint16(eocd + 10, true), p = dv.getUint32(eocd + 16, true);
+    var jobs = [], names = [];
+    for (var n = 0; n < count; n++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) break;
+      var method = dv.getUint16(p + 10, true);
+      var csize = dv.getUint32(p + 20, true);
+      var nlen = dv.getUint16(p + 28, true);
+      var xlen = dv.getUint16(p + 30, true);
+      var clen = dv.getUint16(p + 32, true);
+      var lho = dv.getUint32(p + 42, true);
+      var name = dec(u8.subarray(p + 46, p + 46 + nlen));
+      var lnlen = dv.getUint16(lho + 26, true), lxlen = dv.getUint16(lho + 28, true);
+      var start = lho + 30 + lnlen + lxlen;
+      var raw = u8.subarray(start, start + csize);
+      names.push(name);
+      jobs.push(method === 0 ? Promise.resolve(raw) : inflateRaw(raw));
+      p += 46 + nlen + xlen + clen;
+    }
+    return Promise.all(jobs).then(function (vals) {
+      var out = {};
+      names.forEach(function (nm, i) { out[nm] = vals[i]; });
+      return out;
+    });
+  }
+
+  function xml(bytes) {
+    var d = new DOMParser().parseFromString(dec(bytes), "application/xml");
+    if (d.getElementsByTagName("parsererror").length) throw new Error("XML interno ilegible.");
+    return d;
+  }
+
+  function parseShared(bytes) {
+    if (!bytes) return [];
+    var sis = xml(bytes).getElementsByTagName("si"), out = [];
+    for (var i = 0; i < sis.length; i++) {
+      var ts = sis[i].getElementsByTagName("t"), s = "";
+      for (var j = 0; j < ts.length; j++) {
+        if (ts[j].parentNode.nodeName === "rPh") continue;   // ignorar fonetica
+        s += ts[j].textContent;
+      }
+      out.push(s);
+    }
+    return out;
+  }
+
+  // Detecta que estilos representan fechas (para convertir el serial de Excel)
+  function parseStyles(bytes) {
+    if (!bytes) return [];
+    var d = xml(bytes);
+    var builtin = {14:1,15:1,16:1,17:1,18:1,19:1,20:1,21:1,22:1,45:1,46:1,47:1};
+    var custom = {};
+    var nf = d.getElementsByTagName("numFmt");
+    for (var i = 0; i < nf.length; i++) {
+      var code = (nf[i].getAttribute("formatCode") || "")
+        .replace(/\[[^\]]*\]/g, "").replace(/"[^"]*"/g, "");
+      custom[+nf[i].getAttribute("numFmtId")] = /[dmyh]/i.test(code);
+    }
+    var cx = d.getElementsByTagName("cellXfs")[0];
+    var xfs = cx ? cx.getElementsByTagName("xf") : [];
+    var isDate = [];
+    for (var k = 0; k < xfs.length; k++) {
+      var id = +(xfs[k].getAttribute("numFmtId") || 0);
+      isDate[k] = !!(builtin[id] || custom[id]);
+    }
+    return isDate;
+  }
+
+  function colIdx(ref) {
+    var n = 0;
+    for (var i = 0; i < ref.length; i++) {
+      var c = ref.charCodeAt(i);
+      if (c < 65 || c > 90) break;
+      n = n * 26 + (c - 64);
+    }
+    return n - 1;
+  }
+
+  // Serial de Excel -> [anio, mes(0-11), dia].  25569 = dias de 1899-12-30 a 1970-01-01
+  function serialToYMD(v) {
+    var d = new Date(Math.round((v - 25569) * 86400000));
+    return [d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()];
+  }
+
+  function cellVal(c, shared, isDate) {
+    var t = c.getAttribute("t");
+    if (t === "inlineStr") {
+      var ts = c.getElementsByTagName("t"), s = "";
+      for (var i = 0; i < ts.length; i++) s += ts[i].textContent;
+      return s;
+    }
+    var v = c.getElementsByTagName("v")[0];
+    if (!v) return null;
+    var raw = v.textContent;
+    if (t === "s") { var x = shared[+raw]; return x == null ? "" : x; }
+    if (t === "b") return raw === "1";
+    if (t === "str" || t === "e") return raw;
+    var num = parseFloat(raw);
+    if (isNaN(num)) return raw;
+    var st = c.getAttribute("s");
+    if (st != null && isDate[+st] && num > 0) return { _d: serialToYMD(num) };
+    return num;
+  }
+
+  function parseSheet(bytes, shared, isDate) {
+    var rowEls = xml(bytes).getElementsByTagName("row"), rows = [];
+    for (var i = 0; i < rowEls.length; i++) {
+      var cells = rowEls[i].getElementsByTagName("c"), arr = [];
+      for (var j = 0; j < cells.length; j++) {
+        var ref = cells[j].getAttribute("r");
+        arr[ref ? colIdx(ref) : j] = cellVal(cells[j], shared, isDate);
+      }
+      rows.push(arr);
+    }
+    return rows;
+  }
+
+  function readXlsx(file) {
+    return file.arrayBuffer().then(unzip).then(function (files) {
+      if (!files["xl/workbook.xml"]) throw new Error("No parece un libro de Excel (falta xl/workbook.xml).");
+      var shared = parseShared(files["xl/sharedStrings.xml"]);
+      var isDate = parseStyles(files["xl/styles.xml"]);
+      // relaciones rId -> archivo de hoja
+      var rels = {};
+      if (files["xl/_rels/workbook.xml.rels"]) {
+        var rs = xml(files["xl/_rels/workbook.xml.rels"]).getElementsByTagName("Relationship");
+        for (var i = 0; i < rs.length; i++) {
+          rels[rs[i].getAttribute("Id")] = rs[i].getAttribute("Target").replace(/^\/?xl\//, "");
+        }
+      }
+      var shs = xml(files["xl/workbook.xml"]).getElementsByTagName("sheet"), out = {};
+      for (var k = 0; k < shs.length; k++) {
+        var nm = shs[k].getAttribute("name");
+        var rid = shs[k].getAttribute("r:id") || shs[k].getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        var tgt = rels[rid] || ("worksheets/sheet" + (k + 1) + ".xml");
+        var bytes = files["xl/" + tgt] || files["xl/worksheets/sheet" + (k + 1) + ".xml"];
+        if (bytes) out[nm] = parseSheet(bytes, shared, isDate);
+      }
+      return out;
+    });
+  }
+
+  /* =================================================================
+     2. MODELO: hojas crudas -> estructura del tablero
+     ================================================================= */
+  function norm(s) {
+    return String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .toLowerCase().replace(/\s+/g, " ").trim();
+  }
+  function txt(v) {
+    if (v == null) return "";
+    if (typeof v === "object" && v._d) return v._d[2] + "/" + (v._d[1] + 1) + "/" + v._d[0];
+    return String(v).trim();
+  }
+  function num(v) { var n = parseFloat(v); return isNaN(n) ? null : n; }
+  function ymd(v) { return (v && typeof v === "object" && v._d) ? v._d : null; }
+
+  function estKey(s) {
+    var n = norm(s);
+    if (/finaliz|cerrad|complet|termin/.test(n)) return "fin";
+    if (/proceso|curso|progreso|ejecucion/.test(n)) return "proc";
+    if (/no inici|sin inici|pendiente|no comenz/.test(n)) return "no";
+    return null;
+  }
+  function impKey(s) {
+    var n = norm(s);
+    if (/alto|alta/.test(n)) return "a";
+    if (/medio|media/.test(n)) return "m";
+    if (/bajo|baja/.test(n)) return "b";
+    return null;
+  }
+  function splitSub(name) {
+    name = (name || "").trim();
+    if (name.slice(-1) === ")" && name.indexOf("(") > 0) {
+      var i = name.lastIndexOf("(");
+      return [name.slice(0, i).trim(), name.slice(i + 1, -1).trim()];
+    }
+    return [name, ""];
+  }
+
+  function buildModel(sheets, fname) {
+    var errs = [], warns = [];
+    function findSheet(aliases) {
+      for (var i = 0; i < aliases.length; i++)
+        for (var k in sheets) if (norm(k) === norm(aliases[i])) return sheets[k];
+      return null;
+    }
+    function hdrs(rows) {
+      var h = {}, r0 = rows[0] || [];
+      for (var i = 0; i < r0.length; i++) {
+        var v = txt(r0[i]);
+        if (v) h[norm(v)] = i;
+      }
+      return h;
+    }
+    function C(h, aliases) {
+      for (var i = 0; i < aliases.length; i++) { var k = norm(aliases[i]); if (k in h) return h[k]; }
+      return -1;
+    }
+    function need(h, aliases, sheetName, missing) {
+      var i = C(h, aliases);
+      if (i < 0) missing.push('"' + aliases[0] + '" en la hoja ' + sheetName);
+      return i;
+    }
+    function body(rows) { return rows.slice(1).filter(function (r) { return r && r.some(function (v) { return v != null && txt(v) !== ""; }); }); }
+    var G = function (r, i) { return i >= 0 ? r[i] : null; };
+
+    var missing = [];
+    var shCron = findSheet(["Cronograma"]);
+    var shEnt  = findSheet(["Entregables"]);
+    var shRie  = findSheet(["Riesgos"]);
+    var shSol  = findSheet(["Solicitudes", "Tareas"]);
+    if (!shCron) errs.push("Falta la hoja <code>Cronograma</code>");
+    if (!shEnt)  errs.push("Falta la hoja <code>Entregables</code>");
+    if (!shRie)  errs.push("Falta la hoja <code>Riesgos</code>");
+    if (!shSol)  errs.push("Falta la hoja <code>Solicitudes</code> (o <code>Tareas</code>)");
+    if (errs.length) return { errs: errs, warns: warns };
+
+    // ---- Cronograma ----
+    var h = hdrs(shCron);
+    var cId = need(h, ["Id Fase"], "Cronograma", missing);
+    var cNo = need(h, ["Fase"], "Cronograma", missing);
+    var cIn = need(h, ["Fecha Inicio"], "Cronograma", missing);
+    var cFi = need(h, ["Fecha Fin"], "Cronograma", missing);
+    var cPe = need(h, ["Peso"], "Cronograma", missing);
+    var cRe = need(h, ["Avance Real"], "Cronograma", missing);
+    var cEs = C(h, ["Avance Esperado"]), cDi = C(h, ["Dias Totales", "Días Totales"]), cCo = C(h, ["Comentario"]);
+    var fases = [];
+    body(shCron).forEach(function (r) {
+      var id = num(G(r, cId)); if (id == null) return;
+      var ns = splitSub(txt(G(r, cNo)));
+      var s = ymd(G(r, cIn)), e = ymd(G(r, cFi));
+      if (!s || !e) { warns.push("La fase " + id + " no tiene fechas válidas y se omite de la línea de tiempo."); }
+      var dias = num(G(r, cDi));
+      if (dias == null && s && e) dias = Math.round((Date.UTC(e[0],e[1],e[2]) - Date.UTC(s[0],s[1],s[2])) / 86400000);
+      fases.push({ id:id, nom:ns[0], sub:ns[1], s:s, e:e, dias:dias || 0,
+        esp: cEs >= 0 ? (num(G(r, cEs)) || 0) : 1,
+        real: num(G(r, cRe)) || 0, peso: num(G(r, cPe)) || 0, com: txt(G(r, cCo)) });
+    });
+
+    // ---- Entregables ----
+    h = hdrs(shEnt);
+    var eId = need(h, ["Id Entregable"], "Entregables", missing);
+    var eNo = C(h, ["Nombre Corto"]);
+    var eEn = need(h, ["Entregable"], "Entregables", missing);
+    var eFa = need(h, ["Id Fase"], "Entregables", missing);
+    var eAv = need(h, ["Avance"], "Entregables", missing);
+    var eEg = C(h, ["Entrega"]), eRo = C(h, ["Rol Responsable"]), eAp = C(h, ["Apoyo"]);
+    var dels = [];
+    body(shEnt).forEach(function (r) {
+      var id = num(G(r, eId)); if (id == null) return;
+      var rol = txt(G(r, eRo)), apo = txt(G(r, eAp));
+      dels.push({ id:id, nom: txt(G(r, eNo)) || txt(G(r, eEn)),
+        rol: rol + (apo ? " · apoyo " + apo : ""), pct: num(G(r, eAv)) || 0,
+        entrega: txt(G(r, eEg)) || "Sin hito", fase: num(G(r, eFa)) || 0 });
+    });
+
+    // ---- Riesgos ----
+    h = hdrs(shRie);
+    var rId = need(h, ["Id Riesgo"], "Riesgos", missing);
+    var rNo = need(h, ["Riesgo"], "Riesgos", missing);
+    var rIm = need(h, ["Impacto"], "Riesgos", missing);
+    var rPr = need(h, ["Probabilidad Ocurrencia"], "Riesgos", missing);
+    var rOp = C(h, ["Oportunidad"]), rEs = C(h, ["Estado"]);
+    var risks = [], impBad = {};
+    body(shRie).forEach(function (r) {
+      var id = num(G(r, rId)); if (id == null) return;
+      var lbl = txt(G(r, rIm)), k = impKey(lbl);
+      if (!k) { impBad[lbl || "(vacío)"] = 1; k = "m"; }
+      risks.push({ id:id, nom: txt(G(r, rNo)), mit: txt(G(r, rOp)), imp:k, impLbl: lbl || "—",
+        prob: num(G(r, rPr)) || 0, estado: txt(G(r, rEs)) });
+    });
+    var bad = Object.keys(impBad);
+    if (bad.length) warns.push("Impacto no reconocido (tratado como Medio): " + bad.join(", ") + ".");
+
+    // ---- Tareas ----
+    h = hdrs(shSol);
+    var sId = need(h, ["Id Solicitud", "Id Tarea"], "Solicitudes", missing);
+    var sNo = need(h, ["Solicitud", "Tarea"], "Solicitudes", missing);
+    var sEs = need(h, ["Estado"], "Solicitudes", missing);
+    var sFa = C(h, ["Id Fase"]), sFe = C(h, ["Fecha Solicitud", "Fecha"]), sCi = C(h, ["Fecha Cierre"]);
+    var sol = [], estBad = {};
+    body(shSol).forEach(function (r) {
+      var id = num(G(r, sId)); if (id == null) return;
+      var lbl = txt(G(r, sEs)), k = estKey(lbl);
+      if (!k) { estBad[lbl || "(vacío)"] = 1; k = "proc"; }
+      sol.push({ id:id, nom: txt(G(r, sNo)), fecha: ymd(G(r, sFe)), cierre: ymd(G(r, sCi)),
+        est:k, estLbl: lbl || "—", fase: num(G(r, sFa)) || 0 });
+    });
+    var badE = Object.keys(estBad);
+    if (badE.length) warns.push("Estado no reconocido (tratado como En proceso): " + badE.join(", ") + ".");
+
+    if (missing.length) {
+      errs.push("Faltan columnas obligatorias: " + missing.join(", "));
+      return { errs: errs, warns: warns };
+    }
+    if (!fases.length) errs.push("La hoja <code>Cronograma</code> no tiene filas de datos.");
+    if (errs.length) return { errs: errs, warns: warns };
+
+    return { data: { fases:fases, del:dels, risks:risks, sol:sol, src:fname }, warns: warns, errs: [] };
+  }
+
+  /* =================================================================
+     3. ESTADO Y RENDER
+     ================================================================= */
+  var DATA = DEFAULT_DATA;
+  var state = { fase:"all", estado:"all" };
+  var EST_LBL = { fin:"Finalizado", proc:"En proceso", no:"Sin iniciar" };
+  var MES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function empty(t, s) { return '<div class="empty"><b>'+esc(t)+'</b>'+esc(s)+'</div>'; }
+  function estadoDe(pct) { return pct >= 1 ? "fin" : pct > 0 ? "proc" : "no"; }
+  function faseOk(f) { return state.fase === "all" || f === +state.fase; }
+  function estadoOk(e) { return state.estado === "all" || e === state.estado; }
+  function fmtD(a) { return a ? a[2] + " " + MES[a[1]] + " " + a[0] : "—"; }
+  // Etiqueta corta para el chip de filtro; el nombre completo va en el title
+  var STOP = {de:1,del:1,la:1,el:1,los:1,las:1,y:1,e:1,a:1,en:1,por:1,con:1,para:1,"-":1,"–":1,"—":1};
+  function corto(f) {
+    var w = f.nom.split(/\s+/).filter(Boolean), out = [], len = 0;
+    for (var i = 0; i < w.length; i++) {
+      if (out.length && len + w[i].length + 1 > 15) break;
+      out.push(w[i]); len += w[i].length + 1;
+    }
+    while (out.length > 1 && STOP[out[out.length - 1].toLowerCase()]) out.pop();
+    var s = out.join(" ");
+    if (s.length > 15) s = s.slice(0, 14) + "…";
+    else if (out.length < w.length) s += "…";
+    return f.id + " · " + s;
+  }
+  function U(a) { return Date.UTC(a[0], a[1], a[2]); }
+  function ymdOf(ts) { var d = new Date(ts); return [d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()]; }
+
+  function buildFilters() {
+    var fa = ['<button class="fchip" type="button" data-f="all" aria-pressed="true">Todas</button>'];
+    DATA.fases.forEach(function (f) {
+      fa.push('<button class="fchip" type="button" data-f="'+f.id+'" aria-pressed="false" title="'+esc(f.nom)+'">'+esc(corto(f))+'</button>');
+    });
+    $("f-fase").innerHTML = fa.join("");
+    var es = ['<button class="fchip" type="button" data-e="all" aria-pressed="true">Todos</button>'];
+    ["fin","proc","no"].forEach(function (k) {
+      es.push('<button class="fchip" type="button" data-e="'+k+'" aria-pressed="false">'+EST_LBL[k]+'</button>');
+    });
+    $("f-estado").innerHTML = es.join("");
+  }
+  function syncChips() {
+    [].forEach.call($("f-fase").children, function (b) { b.setAttribute("aria-pressed", b.dataset.f === state.fase); });
+    [].forEach.call($("f-estado").children, function (b) { b.setAttribute("aria-pressed", b.dataset.e === state.estado); });
+    $("freset").disabled = (state.fase === "all" && state.estado === "all");
+  }
+
+  // Escala del Gantt derivada de los datos
+  function timeline() {
+    var ds = DATA.fases.filter(function (f) { return f.s && f.e; });
+    if (!ds.length) return null;
+    var t0 = Math.min.apply(null, ds.map(function (f) { return U(f.s); }));
+    var t1 = Math.max.apply(null, ds.map(function (f) { return U(f.e); }));
+    if (t1 <= t0) t1 = t0 + 86400000;
+    var span = t1 - t0;
+    var months = [], d = new Date(t0);
+    var nMonths = Math.round(span / 86400000 / 30.4) + 1;
+    var step = nMonths > 24 ? 3 : nMonths > 14 ? 2 : 1;
+    var showYear = nMonths > 12;
+    function lbl(dt) { return MES[dt.getUTCMonth()] + (showYear ? " " + String(dt.getUTCFullYear()).slice(2) : ""); }
+    months.push({ p:0, lbl: lbl(d), line:false });
+    d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+    var i = 0;
+    while (d.getTime() < t1) {
+      i++;
+      if (i % step === 0) months.push({ p:(d.getTime() - t0) / span * 100, lbl: lbl(d), line:true });
+      d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+    }
+    return { t0:t0, t1:t1, span:span, months:months };
+  }
+
+  function render() {
+    syncChips();
+    var TL = timeline();
+
+    var fases = DATA.fases.filter(function (f) { return faseOk(f.id) && estadoOk(estadoDe(f.real)); });
+    var dels  = DATA.del.filter(function (d) { return faseOk(d.fase) && estadoOk(estadoDe(d.pct)); });
+    var sols  = DATA.sol.filter(function (s) { return faseOk(s.fase) && estadoOk(s.est); });
+    var solsFase = DATA.sol.filter(function (s) { return faseOk(s.fase); });
+    var nF = DATA.fases.length, nD = DATA.del.length, nR = DATA.risks.length, nS = DATA.sol.length;
+
+    /* --- meta del header --- */
+    var allS = DATA.fases.filter(function (f) { return f.s; }).map(function (f) { return U(f.s); });
+    var allE = DATA.fases.filter(function (f) { return f.e; }).map(function (f) { return U(f.e); });
+    var horiz = "—";
+    if (allS.length && allE.length) {
+      var a = new Date(Math.min.apply(null, allS)), b = new Date(Math.max.apply(null, allE));
+      horiz = MES[a.getUTCMonth()] + " " + a.getUTCFullYear() + " – " + MES[b.getUTCMonth()] + " " + b.getUTCFullYear();
+    }
+    $("tc-meta").innerHTML = "Horizonte del proyecto<b>" + horiz + "</b>" +
+      nF + " fases · " + nD + " entregables · " + nR + " riesgos · " + nS + " tareas";
+
+    /* --- KPIs --- */
+    var peso = 0, real = 0, espW = 0;
+    fases.forEach(function (f) { peso += f.peso; real += f.peso * f.real; espW += f.peso * f.esp; });
+    var avReal = peso ? real / peso * 100 : 0;
+    var avEsp  = peso ? espW / peso * 100 : 0;
+    var gap = avEsp - avReal;
+    var delAvg = dels.length ? dels.reduce(function (a,d) { return a + d.pct; }, 0) / dels.length * 100 : 0;
+    var del100 = dels.filter(function (d) { return d.pct >= 1; }).length;
+    var delRisk = dels.filter(function (d) { return d.pct < 0.7; }).length;
+    var cFin = sols.filter(function (s) { return s.est === "fin"; }).length;
+    var cProc = sols.filter(function (s) { return s.est === "proc"; }).length;
+    var cNo = sols.filter(function (s) { return s.est === "no"; }).length;
+    var scoped = state.fase !== "all" || state.estado !== "all";
+    var rA = DATA.risks.filter(function (r) { return r.imp === "a"; }).length;
+    var rM = DATA.risks.filter(function (r) { return r.imp === "m"; }).length;
+    var rB = DATA.risks.filter(function (r) { return r.imp === "b"; }).length;
+    var ctrl = DATA.risks.filter(function (r) { return /controlad/.test(norm(r.estado)); }).length;
+
+    $("kpis").innerHTML =
+      '<div class="kpi hero"><div class="kpi-label">Avance '+(scoped ? "de la selección" : "general del proyecto")+'</div>'+
+        (fases.length
+          ? '<div class="kpi-value">'+avReal.toFixed(1)+'<small>% real</small></div>'+
+            '<div class="kpi-delta" style="color:'+(gap <= 0.05 ? "var(--good)" : "var(--serious)")+'">'+
+              '<span class="dot" style="background:currentColor"></span>'+
+              (gap <= 0.05 ? "En meta ("+avEsp.toFixed(0)+"%)" : "−"+gap.toFixed(1)+" pts vs. "+avEsp.toFixed(0)+"% esperado")+'</div>'+
+            '<div class="spacer"></div>'+
+            '<div class="meter" title="Real '+avReal.toFixed(1)+'% · Esperado '+avEsp.toFixed(1)+'%"><span style="width:'+Math.min(avReal,100)+'%"></span><i class="exp" style="left:'+Math.min(avEsp,100)+'%"></i></div>'+
+            '<div class="kpi-sub">Ponderado por peso · '+fases.length+' de '+nF+' fases ('+Math.round(peso*100)+'% del peso total)</div>'
+          : '<div class="kpi-value" style="color:var(--muted)">—</div><div class="spacer"></div><div class="kpi-sub">Ninguna fase coincide con el filtro</div>')+
+      '</div>'+
+      '<div class="kpi small"><div class="kpi-label">Entregables</div><div class="kpi-value">'+dels.length+'</div>'+
+        '<div class="kpi-sub">'+(dels.length ? 'Avance promedio <b>'+delAvg.toFixed(1)+'%</b>' : 'Sin entregables en la selección')+'</div>'+
+        '<div class="spacer"></div><div class="chips-row">'+
+          (del100 ? '<span class="chip chip-good">'+del100+' al 100%</span>' : '')+
+          (delRisk ? '<span class="chip chip-crit">'+delRisk+' en riesgo</span>' : '')+
+        '</div></div>'+
+      '<div class="kpi small"><div class="kpi-label">Riesgos</div><div class="kpi-value">'+nR+'</div>'+
+        '<div class="kpi-sub">'+(nR && ctrl === nR ? '<b style="color:var(--good)">100% controlados</b>'
+             : '<b>'+ctrl+'</b> de '+nR+' controlados')+'</div><div class="spacer"></div>'+
+        '<div class="chips-row">'+
+          (rA ? '<span class="chip chip-crit">'+rA+' alto</span>' : '')+
+          (rM ? '<span class="chip chip-warn">'+rM+' medio</span>' : '')+
+          (rB ? '<span class="chip chip-good">'+rB+' bajo</span>' : '')+
+        '</div></div>'+
+      '<div class="kpi small"><div class="kpi-label">Tareas</div><div class="kpi-value">'+sols.length+'</div>'+
+        '<div class="kpi-sub"><b>'+cProc+'</b> en proceso · <b>'+cNo+'</b> sin iniciar</div><div class="spacer"></div>'+
+        '<div class="chips-row">'+(cFin ? '<span class="chip chip-good">'+cFin+' finalizadas</span>' : '')+'</div></div>';
+
+    /* --- Cronograma --- */
+    $("cron-head").style.display = fases.length ? "" : "none";
+    $("cron-body").innerHTML = fases.length ? fases.map(function (f) {
+      var pct = Math.round(f.real*100), espPct = Math.round(f.esp*100), done = f.real >= f.esp && f.esp > 0;
+      var dif = f.esp - f.real, difTxt = Math.abs(dif) < 0.0001 ? "0.0" : (dif > 0 ? "−" : "+") + (Math.abs(dif)*100).toFixed(1);
+      return '<div class="cron-row">'+
+        '<div class="phase-name">'+esc(f.nom)+(f.sub ? '<em>'+esc(f.sub)+'</em>' : '')+'</div>'+
+        '<div class="phase-dates">'+fmtD(f.s)+' → '+fmtD(f.e)+'<span>'+f.dias+' días</span></div>'+
+        '<div class="bar-track-cell"><div class="bar-track" title="Real '+pct+'% · Meta '+espPct+'%">'+
+          '<div class="bar-fill '+(done?"done":"wip")+'" style="width:'+Math.min(pct,100)+'%"></div>'+
+          '<i class="bar-exp" style="left:'+Math.min(espPct,100)+'%"></i><span class="bar-val">'+pct+'%</span></div></div>'+
+        '<div class="weight-pill">'+Math.round(f.peso*100)+'%<span>peso</span></div>'+
+        '<div class="diff '+(Math.abs(dif) < 0.0001 ? "zero" : "neg")+'">'+difTxt+'</div>'+
+        (f.com ? '<div class="cron-comment"><b>Comentario:</b> '+esc(f.com)+'</div>' : '')+
+      '</div>';
+    }).join("") : empty("Ninguna fase coincide", "Ajusta los filtros de fase o estado.");
+
+    $("cron-foot").style.display = fases.length ? "" : "none";
+    $("cron-foot").innerHTML = fases.length
+      ? '<div>Avance esperado <b>'+avEsp.toFixed(1)+'%</b></div><div>Avance real <b style="color:'+(gap<=0.05?"var(--good)":"var(--serious)")+'">'+avReal.toFixed(1)+'%</b></div>' : "";
+
+    /* --- Gantt --- */
+    var gf = fases.filter(function (f) { return f.s && f.e; });
+    if (TL) {
+      var grid = "", sc = "";
+      TL.months.forEach(function (m) {
+        sc += '<span class="gantt-mlbl" style="left:'+m.p+'%">'+m.lbl+'</span>';
+        if (m.line) grid += '<i style="left:'+m.p+'%"></i>';
+      });
+      $("gantt-scale").innerHTML = sc;
+      $("gantt-note").textContent = "Duración real de cada fase sobre el calendario del proyecto ("
+        + fmtD(ymdOf(TL.t0)) + " → " + fmtD(ymdOf(TL.t1)) + ") · el relleno indica el avance alcanzado";
+      $("gantt-body").innerHTML = gf.length ? gf.map(function (f) {
+        var l = (U(f.s) - TL.t0) / TL.span * 100, w = (U(f.e) - U(f.s)) / TL.span * 100;
+        var pct = Math.round(f.real*100), done = f.real >= f.esp && f.esp > 0;
+        var tip = f.nom+' · '+fmtD(f.s)+' → '+fmtD(f.e)+' · '+f.dias+' días · avance '+pct+'%';
+        return '<div class="gantt-row"><div class="gantt-lbl">'+esc(f.nom)+'</div>'+
+          '<div class="gantt-lane"><div class="gantt-grid">'+grid+'</div>'+
+            '<div class="gantt-bar" style="left:'+l+'%;width:'+Math.max(w,0.5)+'%" title="'+esc(tip)+'">'+
+              '<span class="'+(done?"done":"wip")+'" style="width:'+Math.min(pct,100)+'%"></span><b>'+f.dias+'d</b></div>'+
+          '</div></div>';
+      }).join("") : empty("Sin fases que mostrar", "La línea de tiempo sigue los mismos filtros.");
+    } else {
+      $("gantt-scale").innerHTML = "";
+      $("gantt-note").textContent = "";
+      $("gantt-body").innerHTML = empty("Sin fechas", "Ninguna fase del archivo tiene fecha de inicio y fin.");
+    }
+
+    /* --- Entregables --- */
+    $("del-note").innerHTML = dels.length
+      ? dels.length+' de '+nD+' entregables · verde ≥ 90% · ámbar 70–89% · rojo &lt; 70%'
+      : 'Sin entregables para este filtro';
+    function colorFor(p) { return p >= 0.90 ? "var(--good)" : p >= 0.70 ? "var(--warn)" : "var(--crit)"; }
+    function delRow(d) {
+      var pct = Math.round(d.pct*100);
+      return '<div class="del-row" title="'+esc(d.nom)+' — '+pct+'%">'+
+        '<div class="del-name">'+esc(d.nom)+(d.rol ? '<em>'+esc(d.rol)+'</em>' : '')+'</div>'+
+        '<div class="del-track"><span style="width:'+Math.min(pct,100)+'%;background:'+colorFor(d.pct)+'"></span></div>'+
+        '<div class="del-pct" style="color:'+colorFor(d.pct)+'">'+pct+'%</div></div>';
+    }
+    if (!dels.length) {
+      $("del-list").innerHTML = empty("Sin entregables", "Ningún entregable coincide con la fase y el estado seleccionados.");
+    } else {
+      var groups = [];
+      dels.forEach(function (d) { if (groups.indexOf(d.entrega) < 0) groups.push(d.entrega); });
+      groups.sort();
+      $("del-list").innerHTML = groups.map(function (g) {
+        var rows = dels.filter(function (d) { return d.entrega === g; });
+        return '<div class="del-group-lbl">'+esc(g)+' <span class="ln"></span></div>' + rows.map(delRow).join("");
+      }).join("");
+    }
+
+    /* --- Riesgos (no dependen de los filtros) --- */
+    $("risk-nofilter").innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'+
+      '<div>En el archivo los riesgos no están vinculados a ninguna fase'+
+      (nR && ctrl === nR ? ' y los '+nR+' están en estado <b>'+esc(DATA.risks[0].estado || "Controlado")+'</b>' : '')+
+      ', así que esta sección no responde a los filtros.</div>';
+    $("risk-note").innerHTML = nR + ' riesgos · ' + (nR && ctrl === nR
+      ? 'todos en estado <b style="color:var(--good)">'+esc(DATA.risks[0].estado || "Controlado")+'</b>'
+      : '<b>'+ctrl+'</b> controlados');
+
+    function band(p) { return p <= 0.3 ? 0 : p < 0.7 ? 1 : 2; }
+    var BANDS = ["Baja<br>≤30%", "Media<br>40–60%", "Alta<br>≥70%"];
+    var ROWS = [["a","Alto",3], ["m","Medio",2], ["b","Bajo",1]];
+    var mx = '<div></div>' + BANDS.map(function (b) { return '<div class="m-collab">'+b+'</div>'; }).join("");
+    ROWS.forEach(function (row) {
+      mx += '<div class="m-rowlab">Impacto<br>'+row[1]+'</div>';
+      for (var b = 0; b < 3; b++) {
+        var hits = DATA.risks.filter(function (r) { return r.imp === row[0] && band(r.prob) === b; });
+        if (hits.length) {
+          var tip = row[1]+' · prob. '+["baja","media","alta"][b]+' — '+hits.map(function (r) { return "R"+r.id+" "+r.nom; }).join(" · ");
+          mx += '<div class="m-cell m-lvl'+row[2]+'" title="'+esc(tip)+'">'+hits.length+'</div>';
+        } else {
+          mx += '<div class="m-cell m-empty">—</div>';
+        }
+      }
+    });
+    mx += '<div></div><div class="m-axis-x">Probabilidad de ocurrencia →</div>';
+    $("risk-matrix").innerHTML = mx;
+
+    $("risk-list").innerHTML = DATA.risks.length ? DATA.risks.map(function (r) {
+      return '<div class="risk-row"><div class="risk-id">R'+r.id+'</div>'+
+        '<div><div class="risk-name">'+esc(r.nom)+'</div>'+
+        (r.mit ? '<div class="risk-mit"><b>Mitigación:</b> '+esc(r.mit)+'</div>' : '')+'</div>'+
+        '<div class="risk-tags"><span class="tag-imp '+r.imp+'">'+esc(r.impLbl)+'</span>'+
+        '<span class="tag-prob">Prob. '+Math.round(r.prob*100)+'%</span></div></div>';
+    }).join("") : empty("Sin riesgos", "El archivo no tiene filas en la hoja Riesgos.");
+
+    /* --- Tareas --- */
+    $("sol-note").textContent = sols.length + (sols.length === 1 ? " tarea" : " tareas") + " de " + nS;
+    var n = solsFase.length;
+    var dFin = solsFase.filter(function (s) { return s.est === "fin"; }).length;
+    var dProc = solsFase.filter(function (s) { return s.est === "proc"; }).length;
+    var dNo = solsFase.filter(function (s) { return s.est === "no"; }).length;
+
+    if (!n) {
+      var fs = {}; DATA.sol.forEach(function (s) { fs[s.fase] = 1; });
+      var lst = Object.keys(fs).map(function (id) {
+        var f = DATA.fases.filter(function (x) { return x.id === +id; })[0];
+        return f ? f.id + " · " + f.nom : id;
+      });
+      $("donut-wrap").innerHTML = empty("Sin tareas en esta fase",
+        lst.length ? "En el archivo las tareas están asociadas a: " + lst.join(", ") + "." : "");
+      $("sol-insight").innerHTML = "";
+    } else {
+      var p1 = dFin/n*100, p2 = p1 + dProc/n*100;
+      var grad = 'conic-gradient(var(--good) 0 '+p1+'%, var(--brand) '+p1+'% '+p2+'%, var(--warn) '+p2+'% 100%)';
+      function li(k, lbl, val, color) {
+        var cls = state.estado === "all" ? "" : (state.estado === k ? " sel" : " dim");
+        return '<div class="legend-item'+cls+'"><span class="dot" style="background:'+color+'"></span>'+
+          '<span class="name">'+lbl+'</span><b>'+val+'</b></div>';
+      }
+      $("donut-wrap").innerHTML =
+        '<div class="donut" style="background:'+grad+'" role="img" aria-label="'+dFin+' finalizadas, '+dProc+' en proceso, '+dNo+' sin iniciar">'+
+          '<div class="donut-center"><b>'+n+'</b><small>total</small></div></div>'+
+        '<div class="legend">'+ li("fin","Finalizadas",dFin,"var(--good)")+
+          li("proc","En proceso",dProc,"var(--brand)")+ li("no","Sin iniciar",dNo,"var(--warn)")+'</div>';
+
+      // Aviso derivado: cuantas tareas no tienen fecha de cierre
+      var sinCierre = solsFase.filter(function (s) { return !s.cierre; }).length;
+      var fechas = solsFase.filter(function (s) { return s.fecha; }).map(function (s) { return U(s.fecha); });
+      var rango = "";
+      if (fechas.length) {
+        var f0 = new Date(Math.min.apply(null, fechas)), f1 = new Date(Math.max.apply(null, fechas));
+        rango = " Se crearon entre el " + f0.getUTCDate() + " de " + MES[f0.getUTCMonth()].toLowerCase() +
+          " de " + f0.getUTCFullYear() + " y el " + f1.getUTCDate() + " de " + MES[f1.getUTCMonth()].toLowerCase() +
+          " de " + f1.getUTCFullYear() + ".";
+      }
+      $("sol-insight").innerHTML =
+        '<div class="sol-close"><span>Tasa de cierre</span><b>'+dFin+' de '+n+' · '+Math.round(dFin/n*100)+'%</b></div>'+
+        '<div class="sol-meter" title="'+dFin+' de '+n+' finalizadas"><span style="width:'+(dFin/n*100)+'%"></span></div>'+
+        (sinCierre ? '<div class="sol-flag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'+
+          '<div><b>'+(sinCierre === n ? "Sin fechas de cierre." : sinCierre + " sin fecha de cierre.")+'</b>'+
+          esc(rango)+' '+(sinCierre === n ? "Ninguna registra fecha de cierre en el archivo — incluidas las marcadas como finalizadas."
+                                          : sinCierre + " de " + n + " no registran fecha de cierre.")+'</div></div>' : '');
+    }
+
+    $("sol-detail-note").textContent = sols.length ? "Fecha de creación y estado" : "";
+    $("sol-list").innerHTML = sols.length ? sols.map(function (s) {
+      return '<div class="sol-row"><div class="sol-id">'+s.id+'</div>'+
+        '<div class="sol-name">'+esc(s.nom)+'<em>Creada: '+fmtD(s.fecha)+'</em></div>'+
+        '<span class="st st-'+s.est+'" title="'+esc(s.estLbl)+'">'+esc(s.estLbl || EST_LBL[s.est])+'</span></div>';
+    }).join("") : empty("Sin tareas", "Ninguna tarea coincide con la fase y el estado seleccionados.");
+
+    var plural = function (v, sing, pl) { return '<b>'+v+'</b> ' + (v === 1 ? sing : pl); };
+    $("fcount").innerHTML = scoped
+      ? 'Mostrando ' + plural(fases.length,"fase","fases") + ' · ' + plural(dels.length,"entregable","entregables") +
+        ' · ' + plural(sols.length,"tarea","tareas")
+      : 'Vista completa · <b>'+nF+'</b> fases · <b>'+nD+'</b> entregables · <b>'+nS+'</b> tareas';
+
+    /* --- barra de origen + footer --- */
+    var isDef = DATA === DEFAULT_DATA;
+    $("srcbar").innerHTML =
+      '<span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'+
+      esc(DATA.src)+'</span>'+
+      '<span class="sep">·</span><span>'+nF+' fases · '+nD+' entregables · '+nR+' riesgos · '+nS+' tareas</span>'+
+      (isDef ? '' : '<span class="sep">·</span><button class="lnk" id="revert" type="button">Volver a los datos de ejemplo</button>');
+    if (!isDef) $("revert").addEventListener("click", function () { setData(DEFAULT_DATA, []); });
+
+    $("footer").innerHTML = 'Tablero de Control · Plataforma Analítica · datos: ' + esc(DATA.src) + '<br>' +
+      'Marca VITAL aplicada según su Manual de Marca (ene. 2021) · Atribución Softtek según Brandkeeper 2025, pág. 24 (caso B).';
+  }
+
+  /* =================================================================
+     4. CARGA DE ARCHIVO
+     ================================================================= */
+  function msg(kind, title, lines) {
+    var el = $("loadmsg");
+    el.className = "loadmsg " + kind;
+    el.innerHTML = "<b>" + title + "</b>" + (lines && lines.length
+      ? "<ul><li>" + lines.join("</li><li>") + "</li></ul>" : "");
+    if (kind === "ok") setTimeout(function () { el.className = "loadmsg"; }, 6000);
+  }
+  function setData(d, warns) {
+    DATA = d;
+    state.fase = "all"; state.estado = "all";
+    buildFilters(); render();
+    if (d !== DEFAULT_DATA) {
+      msg("ok", "Datos cargados de “" + d.src + "”.", warns);
+    } else {
+      $("loadmsg").className = "loadmsg";
+    }
+  }
+
+  $("loadBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("fileInput").addEventListener("change", function (ev) {
+    var file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    $("fileInput").value = "";
+    if (!/\.xlsx$/i.test(file.name)) {
+      msg("err", "Formato no soportado", ["Se esperaba un archivo <code>.xlsx</code>. Si tu archivo es <code>.xls</code> o <code>.csv</code>, guárdalo como .xlsx desde Excel."]);
+      return;
+    }
+    if (typeof DecompressionStream === "undefined") {
+      msg("err", "Navegador no compatible", ["Este lector necesita <code>DecompressionStream</code> (Chrome/Edge 80+, Firefox 113+, Safari 16.4+)."]);
+      return;
+    }
+    msg("ok", "Leyendo “" + file.name + "”…", []);
+    readXlsx(file).then(function (sheets) {
+      var res = buildModel(sheets, file.name);
+      if (res.errs && res.errs.length) {
+        msg("err", "No se pudo usar “" + file.name + "”", res.errs.concat(
+          ["Hojas encontradas: <code>" + Object.keys(sheets).join("</code>, <code>") + "</code>"],
+          ["El tablero sigue mostrando los datos anteriores."]));
+        return;
+      }
+      setData(res.data, res.warns);
+    }).catch(function (e) {
+      msg("err", "Error al leer “" + file.name + "”", [esc(e && e.message ? e.message : String(e)),
+        "El tablero sigue mostrando los datos anteriores."]);
+    });
+  });
+
+  /* --- eventos --- */
+  $("f-fase").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-f]"); if (!b) return;
+    state.fase = b.dataset.f; render();
+  });
+  $("f-estado").addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-e]"); if (!b) return;
+    state.estado = b.dataset.e; render();
+  });
+  $("freset").addEventListener("click", function () { state.fase = "all"; state.estado = "all"; render(); });
+  $("themeBtn").addEventListener("click", function () {
+    var root = document.documentElement, cur = root.getAttribute("data-theme");
+    if (!cur) cur = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+    root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  });
+
+  buildFilters();
+  render();
+  window.__tc = { readXlsx: readXlsx, buildModel: buildModel, setData: setData,
+                  get data() { return DATA; } };   // para pruebas
+})();
+</script>

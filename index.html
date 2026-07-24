@@ -1,0 +1,163 @@
+<meta charset="utf-8">
+<title>Tablero de Control · VITAL Supermayorista</title>
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/shell.css">
+<link rel="stylesheet" href="css/dashboard.css">
+
+<div class="tc">
+  <div class="brandbar">
+    <div class="tc-wrap">
+      <div class="vital-logo"><img src="assets/vital-logo.svg" alt="VITAL Supermayorista"></div>
+      <div class="powered">
+        <span class="lbl">Powered by</span>
+        <span class="stk"><img src="assets/softtek-logo.svg" alt="Softtek"></span>
+      </div>
+    </div>
+  </div>
+
+  <header class="titlebar">
+    <div class="tc-wrap">
+      <div>
+        <div class="tc-eyebrow">VITAL Supermayorista · Plataforma Analítica</div>
+        <div class="tc-title">Tablero de Control del Proyecto</div>
+        <div class="tc-sub">Seguimiento integral de cronograma, entregables, riesgos y tareas.</div>
+      </div>
+      <div class="tc-hright">
+        <div class="tc-actions">
+          <button class="hbtn primary" id="loadBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            Cargar Excel
+          </button>
+          <input type="file" id="fileInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="sr">
+          <button class="hbtn theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
+            <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <span class="lbl-light">Modo oscuro</span><span class="lbl-dark">Modo claro</span>
+          </button>
+        </div>
+        <div class="tc-meta" id="tc-meta"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tc-wrap">
+    <div class="srcbar" id="srcbar"></div>
+    <div class="loadmsg" id="loadmsg" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="filters" id="filtersBar">
+    <div class="tc-wrap">
+      <div class="filters-in">
+        <div class="fgroup">
+          <span class="flabel">Fase</span>
+          <div id="f-fase" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="fdiv"></div>
+        <div class="fgroup">
+          <span class="flabel">Estado</span>
+          <div id="f-estado" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="fclear">
+          <span class="fcount" id="fcount"></span>
+          <button class="freset" id="freset" type="button">Limpiar filtros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="estate" id="emptyState">
+    <div class="estate-card">
+      <div class="estate-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>
+      </div>
+      <h2>Aún no hay datos cargados</h2>
+      <p>Carga un archivo Excel con el formato del proyecto (hojas <b>Cronograma</b>, <b>Solicitudes</b>, <b>Riesgos</b> y <b>Entregables</b>) para ver el tablero.</p>
+      <button class="hbtn" id="emptyLoadBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        Cargar Excel
+      </button>
+      <span class="example">o <button id="emptyExample" type="button">ver el tablero con datos de ejemplo</button></span>
+      <div class="hint">El archivo se procesa en tu navegador; no se sube a ningún servidor. También puedes usar el botón <code>Cargar Excel</code> de la esquina superior.</div>
+    </div>
+  </div>
+
+  <div class="tc-wrap" id="dashboardBody">
+    <div class="kpis" id="kpis"></div>
+
+    <section>
+      <div class="tc-sechead">
+        <span class="tc-secnum">1</span>
+        <span class="tc-sectitle">Cronograma · avance por fase</span>
+        <span class="tc-secnote">Barra = avance real · línea <b>meta</b> = esperado</span>
+      </div>
+      <div class="card">
+        <div class="cron-head" id="cron-head">
+          <div>Fase</div><div>Fechas</div><div>Avance real vs. meta</div><div class="r">Peso</div><div class="r">Dif.</div>
+        </div>
+        <div id="cron-body"></div>
+        <div class="cron-foot" id="cron-foot"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h3>Línea de tiempo de las fases</h3>
+        <p class="cardnote" id="gantt-note"></p>
+        <div class="gantt-months">
+          <div></div>
+          <div class="gantt-scale" id="gantt-scale"></div>
+        </div>
+        <div id="gantt-body"></div>
+        <div class="gantt-legend">
+          <span><i class="gantt-key" style="background:var(--good)"></i> Fase completada (100%)</span>
+          <span><i class="gantt-key" style="background:var(--brand)"></i> Avance real</span>
+          <span><i class="gantt-key" style="background:var(--track);box-shadow:inset 0 0 0 1px var(--hair-strong)"></i> Pendiente</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2" style="margin-top:34px;">
+      <section style="margin-top:0;">
+        <div class="tc-sechead"><span class="tc-secnum">2</span><span class="tc-sectitle">Entregables</span></div>
+        <div class="card">
+          <h3>Avance por entregable · rol responsable</h3>
+          <p class="cardnote" id="del-note"></p>
+          <div id="del-list"></div>
+        </div>
+      </section>
+
+      <section style="margin-top:0;">
+        <div class="tc-sechead"><span class="tc-secnum">3</span><span class="tc-sectitle">Riesgos</span></div>
+        <div class="card">
+          <div class="nofilter" id="risk-nofilter"></div>
+          <h3>Matriz impacto × probabilidad</h3>
+          <p class="cardnote" id="risk-note"></p>
+          <div class="matrix" id="risk-matrix"></div>
+          <h3 style="margin-top:22px;">Detalle de riesgos y mitigación</h3>
+          <div id="risk-list" style="margin-top:12px;"></div>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <div class="tc-sechead">
+        <span class="tc-secnum">4</span><span class="tc-sectitle">Tareas</span>
+        <span class="tc-secnote" id="sol-note"></span>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Estado de las tareas</h3>
+          <p class="cardnote">Distribución por estado de la fase seleccionada</p>
+          <div class="donut-wrap" id="donut-wrap"></div>
+          <div class="sol-insight" id="sol-insight"></div>
+        </div>
+        <div class="card">
+          <h3>Detalle de tareas</h3>
+          <p class="cardnote" id="sol-detail-note"></p>
+          <div id="sol-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer" id="footer"></div>
+  </div>
+</div>
+<script type="module" src="js/main.js"></script>

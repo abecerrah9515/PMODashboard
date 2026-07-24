@@ -9,7 +9,7 @@
 
 ## Objetivo
 
-Reestructurar el proyecto en archivos separados por responsabilidad única (CSS, HTML, JS por módulo), **sin build, sin dependencias externas, sin CDNs** — manteniendo la filosofía actual — y **sin ningún cambio funcional**: el tablero debe verse y comportarse exactamente igual que hoy. Es un refactor puro de estructura para mejorar mantenibilidad; no se agregan ni quitan features.
+Reestructurar el proyecto en archivos separados por responsabilidad única (CSS, HTML, JS por módulo), **sin build, sin dependencias externas, sin CDNs** — manteniendo la filosofía actual — y **sin cambios funcionales en el tablero en sí**: debe verse y comportarse exactamente igual que hoy, tanto publicado en Azure Static Web Apps como corriendo en local. Es un refactor puro de estructura para mejorar mantenibilidad; no se agregan ni quitan features. La única excepción aceptada, acotada al flujo de desarrollo local, se detalla más abajo (ES Modules + `file://`).
 
 ## Restricciones no negociables
 
@@ -19,6 +19,18 @@ Reestructurar el proyecto en archivos separados por responsabilidad única (CSS,
 - Publicación destino: **Azure Static Web Apps** (confirmado por el usuario). No se necesita `server.js`: SWA sirve archivos estáticos directamente.
 - Paridad funcional total: mismos datos de ejemplo, mismos mensajes de error/advertencia, mismo comportamiento de filtros, tema claro/oscuro, carga de Excel, etc.
 - Sin pruebas automatizadas en esta ronda (decisión explícita del usuario). La estructura debe quedar preparada para agregarlas después (funciones puras exportadas via ES Modules, importables directamente con `node --test`).
+
+### Excepción documentada: apertura local con doble clic
+
+Con ES Modules (`<script type="module">`), los navegadores (Chrome/Edge/Firefox) bloquean por CORS la carga de módulos cuando el HTML se abre directo por `file://` (doble clic). Esto es un cambio de comportamiento respecto a hoy, **confinado exclusivamente al flujo de desarrollo local** — la publicación en Azure Static Web Apps no se ve afectada porque siempre sirve por https.
+
+Decisión confirmada con el usuario: se mantiene ES Modules. Para desarrollo local, el flujo pasa a ser levantar un servidor estático liviano:
+
+```
+npx serve .
+```
+
+(sin instalación permanente, sin `node_modules` en el repo, usando el Node ya instalado en la máquina). Alternativa equivalente: extensión "Live Server" de VS Code. Esto debe quedar documentado explícitamente en el README como el único cambio de comportamiento aceptado, y limitado a "cómo abrir el proyecto en local para desarrollo" — no afecta el resultado publicado ni el comportamiento de la aplicación en sí.
 
 ## Decisiones de arquitectura
 
@@ -97,7 +109,7 @@ El botón "Quitar datos" (`clearBtn`) hoy se re-engancha con `addEventListener` 
 El `README.md` raíz se actualiza para incluir:
 - El árbol de carpetas completo (como el de arriba).
 - Una tabla o lista con la responsabilidad de cada archivo/carpeta.
-- Instrucciones de uso sin cambios (abrir `index.html`, cargar Excel).
+- Instrucciones de desarrollo local actualizadas: `npx serve .` (o Live Server) en vez de doble clic — con la explicación breve de por qué (ES Modules + `file://`).
 - Instrucciones de publicación actualizadas (SWA apunta a la raíz, sin `deploy/` duplicado).
 
 ## Errores y validación

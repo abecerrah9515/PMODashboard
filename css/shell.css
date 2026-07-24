@@ -1,0 +1,96 @@
+  * { box-sizing: border-box; }
+  .tc { font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink);
+        background:var(--page); line-height:1.45; -webkit-font-smoothing:antialiased;
+        padding:0 0 64px; min-height:100%; }
+  .tc-wrap { max-width:1200px; margin:0 auto; padding:0 28px; }
+
+  /* Barra de marca — Manual VITAL pag. 15-16: el logo siempre sobre blanco */
+  .brandbar { background:#fff; border-bottom:1px solid #e6e9ef; }
+  .brandbar .tc-wrap { display:flex; align-items:center; justify-content:space-between;
+    gap:24px; padding-top:16px; padding-bottom:16px; flex-wrap:wrap; }
+  .vital-logo { width:140px; flex:none; line-height:0; }
+  .vital-logo svg { width:100%; height:auto; display:block; }
+  .powered { display:flex; align-items:center; gap:10px; flex:none; }
+  .powered .lbl { font-size:13px; color:#53565A; white-space:nowrap; }
+  .powered .stk { width:74px; line-height:0; }
+  .powered .stk svg { width:100%; height:auto; display:block; }
+
+  .titlebar { background:linear-gradient(100deg,var(--vital-blue) 0%,#0f3f7d 100%);
+    color:#fff; padding:26px 0 28px; border-bottom:4px solid var(--vital-red); }
+  .titlebar .tc-wrap { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .tc-eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.72); font-weight:600; }
+  .tc-title { font-size:24px; font-weight:700; letter-spacing:-.015em; margin:4px 0 0; }
+  .tc-sub { font-size:13px; color:rgba(255,255,255,.72); margin-top:5px; max-width:56ch; }
+  .tc-hright { display:flex; flex-direction:column; align-items:flex-end; gap:12px; }
+  .tc-actions { display:flex; gap:9px; flex-wrap:wrap; justify-content:flex-end; }
+  .tc-meta { text-align:right; font-size:12px; color:rgba(255,255,255,.78); line-height:1.5; }
+  .tc-meta b { display:block; font-size:15px; color:#fff; font-weight:700; }
+
+  .hbtn { display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.3);
+    border-radius:999px; padding:7px 14px; font:inherit; font-size:12.5px; font-weight:600; transition:background .15s; }
+  .hbtn:hover { background:rgba(255,255,255,.24); }
+  .hbtn:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  .hbtn svg { width:16px; height:16px; }
+  .hbtn.primary { background:#fff; color:var(--vital-blue); border-color:#fff; }
+  .hbtn.primary:hover { background:#eef3fb; }
+  .theme-btn .lbl-dark, :root[data-theme="dark"] .theme-btn .lbl-light,
+  :root[data-theme="dark"] .theme-btn .ico-moon, .theme-btn .ico-sun { display:none; }
+  :root[data-theme="dark"] .theme-btn .lbl-dark, :root[data-theme="dark"] .theme-btn .ico-sun,
+  .theme-btn .lbl-light, .theme-btn .ico-moon { display:inline; }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .theme-btn .ico-moon,
+    :root:where(:not([data-theme="light"])) .theme-btn .lbl-light { display:none; }
+    :root:where(:not([data-theme="light"])) .theme-btn .ico-sun,
+    :root:where(:not([data-theme="light"])) .theme-btn .lbl-dark { display:inline; }
+  }
+
+  /* Aviso de origen de datos */
+  .srcbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:10px 0; font-size:12px; color:var(--ink-2); border-bottom:1px solid var(--hair); }
+  .srcbar .tag { display:inline-flex; align-items:center; gap:7px; font-weight:600; color:var(--ink); }
+  .srcbar .tag svg { width:14px; height:14px; color:var(--brand); }
+  .srcbar .sep { color:var(--hair-strong); }
+  .srcbar .lnk { cursor:pointer; font:inherit; font-size:12px; font-weight:600; color:var(--brand-ink);
+    background:none; border:none; text-decoration:underline; padding:2px; }
+  .srcbar .warn { color:var(--warn); font-weight:600; }
+
+  .loadmsg { margin:16px 0 0; border-radius:12px; padding:14px 16px; font-size:12.5px; line-height:1.6;
+    border:1px solid; display:none; }
+  .loadmsg.err { display:block; background:var(--crit-track); border-color:var(--crit); color:var(--ink); }
+  .loadmsg.ok  { display:block; background:var(--good-track); border-color:var(--good); color:var(--ink); }
+  .loadmsg b { display:block; margin-bottom:5px; font-size:13px; }
+  .loadmsg ul { margin:6px 0 0; padding-left:18px; }
+  .loadmsg code { background:rgba(0,0,0,.06); padding:1px 5px; border-radius:4px; font-size:11.5px; }
+
+  .filters { position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--page) 90%, transparent);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--hair); }
+  .filters-in { display:flex; align-items:center; gap:22px; padding:12px 0; flex-wrap:wrap; }
+  .fgroup { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .flabel { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .fchip { cursor:pointer; font:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px;
+    border:1px solid var(--hair-strong); background:var(--surface); color:var(--ink-2); transition:all .13s; white-space:nowrap; }
+  .fchip:hover { border-color:var(--brand); color:var(--brand-ink); }
+  .fchip:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .fchip[aria-pressed="true"] { background:var(--brand); border-color:var(--brand); color:#fff; }
+  .fclear { margin-left:auto; display:flex; align-items:center; gap:12px; }
+  .fcount { font-size:11.5px; color:var(--ink-2); }
+  .fcount b { color:var(--ink); font-weight:700; }
+  .freset { cursor:pointer; font:inherit; font-size:12px; font-weight:600; color:var(--brand-ink);
+    background:none; border:none; text-decoration:underline; padding:4px; }
+  .freset:disabled { color:var(--muted); text-decoration:none; cursor:default; }
+  .fdiv { width:1px; align-self:stretch; background:var(--hair-strong); }
+
+  section { margin-top:34px; }
+  .tc-sechead { display:flex; align-items:baseline; gap:12px; margin-bottom:15px; }
+  .tc-secnum { font-size:12px; font-weight:700; color:#fff; background:var(--brand); width:23px; height:23px;
+    border-radius:6px; display:grid; place-items:center; flex:none; }
+  .tc-sectitle { font-size:17px; font-weight:700; letter-spacing:-.01em; }
+  .tc-secnote { font-size:12.5px; color:var(--ink-2); margin-left:auto; text-align:right; }
+  .card { background:var(--surface); border:1px solid var(--hair); border-radius:14px; box-shadow:var(--shadow); padding:22px; }
+  .card h3 { font-size:13.5px; font-weight:700; margin:0 0 2px; }
+  .card .cardnote { font-size:12px; color:var(--ink-2); margin:0 0 16px; }
+  .empty { text-align:center; padding:26px 16px; color:var(--muted); font-size:12.5px; background:var(--surface-2);
+    border-radius:10px; border:1px dashed var(--hair-strong); }
+  .empty b { display:block; color:var(--ink-2); font-size:13px; margin-bottom:3px; }
+

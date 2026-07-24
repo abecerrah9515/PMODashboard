@@ -4,9 +4,11 @@
 
 # --- Datos fuente / temporales del proyecto ---
 *.xlsx
+!ejemplo-datos.xlsx
 
 # --- Configuración local de herramientas ---
 .claude/
+.superpowers/
 
 # --- Sistema ---
 Thumbs.db

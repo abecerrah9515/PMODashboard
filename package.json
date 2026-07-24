@@ -1,0 +1,9 @@
+{
+  "name": "pmo-dashboard",
+  "private": true,
+  "type": "module",
+  "description": "Tablero de Control PMO — sitio estático, sin build, sin dependencias en producción.",
+  "scripts": {
+    "dev": "npx -y serve . -p 3000"
+  }
+}

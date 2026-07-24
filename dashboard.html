@@ -279,6 +279,24 @@
   .st-proc { background:color-mix(in srgb, var(--brand) 14%, transparent); color:var(--brand-ink); }
   .st-no { background:var(--warn-track); color:var(--warn); }
 
+  /* Estado vacío: se muestra hasta que el usuario carga un Excel */
+  .estate { max-width:580px; margin:56px auto 40px; padding:0 24px; }
+  .estate-card { background:var(--surface); border:1px solid var(--hair); border-radius:16px;
+    box-shadow:var(--shadow); padding:44px 36px; text-align:center; }
+  .estate-ic { width:58px; height:58px; margin:0 auto 18px; border-radius:15px; display:grid; place-items:center;
+    background:color-mix(in srgb, var(--brand) 12%, transparent); color:var(--brand); }
+  .estate-ic svg { width:28px; height:28px; }
+  .estate h2 { font-size:19px; font-weight:750; letter-spacing:-.01em; margin:0 0 8px; }
+  .estate p { font-size:13.5px; color:var(--ink-2); line-height:1.55; margin:0 auto 24px; max-width:44ch; }
+  .estate .hbtn { background:var(--brand); border-color:var(--brand); color:#fff; font-size:13.5px; padding:10px 22px; }
+  .estate .hbtn:hover { background:var(--brand-deep); }
+  .estate .example { display:block; margin-top:16px; font-size:12.5px; color:var(--ink-2); }
+  .estate .example button { background:none; border:none; color:var(--brand-ink); font:inherit; font-size:12.5px;
+    font-weight:600; text-decoration:underline; cursor:pointer; padding:3px; }
+  .estate .example button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .estate .hint { margin-top:24px; padding-top:18px; border-top:1px solid var(--hair); font-size:11.5px; color:var(--muted); line-height:1.6; }
+  .estate .hint code { background:color-mix(in srgb, var(--ink) 7%, transparent); padding:1px 5px; border-radius:4px; }
+
   .footer { margin-top:40px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.7; }
   .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
@@ -335,7 +353,7 @@
     <div class="loadmsg" id="loadmsg" role="status" aria-live="polite"></div>
   </div>
 
-  <div class="filters">
+  <div class="filters" id="filtersBar">
     <div class="tc-wrap">
       <div class="filters-in">
         <div class="fgroup">
@@ -355,7 +373,23 @@
     </div>
   </div>
 
-  <div class="tc-wrap">
+  <div class="estate" id="emptyState">
+    <div class="estate-card">
+      <div class="estate-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/></svg>
+      </div>
+      <h2>Aún no hay datos cargados</h2>
+      <p>Carga un archivo Excel con el formato del proyecto (hojas <b>Cronograma</b>, <b>Solicitudes</b>, <b>Riesgos</b> y <b>Entregables</b>) para ver el tablero.</p>
+      <button class="hbtn" id="emptyLoadBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        Cargar Excel
+      </button>
+      <span class="example">o <button id="emptyExample" type="button">ver el tablero con datos de ejemplo</button></span>
+      <div class="hint">El archivo se procesa en tu navegador; no se sube a ningún servidor. También puedes usar el botón <code>Cargar Excel</code> de la esquina superior.</div>
+    </div>
+  </div>
+
+  <div class="tc-wrap" id="dashboardBody">
     <div class="kpis" id="kpis"></div>
 
     <section>
@@ -1196,7 +1230,7 @@
   /* =================================================================
      3. ESTADO Y RENDER
      ================================================================= */
-  var DATA = DEFAULT_DATA;
+  var DATA = null;   // arranca vacío: no se muestran datos hasta que el usuario cargue un Excel
   var state = { fase:"all", estado:"all" };
   var EST_LBL = { fin:"Finalizado", proc:"En proceso", no:"Sin iniciar" };
   var MES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -1508,13 +1542,12 @@
       : 'Vista completa · <b>'+nF+'</b> fases · <b>'+nD+'</b> entregables · <b>'+nS+'</b> tareas';
 
     /* --- barra de origen + footer --- */
-    var isDef = DATA === DEFAULT_DATA;
     $("srcbar").innerHTML =
       '<span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'+
       esc(DATA.src)+'</span>'+
       '<span class="sep">·</span><span>'+nF+' fases · '+nD+' entregables · '+nR+' riesgos · '+nS+' tareas</span>'+
-      (isDef ? '' : '<span class="sep">·</span><button class="lnk" id="revert" type="button">Volver a los datos de ejemplo</button>');
-    if (!isDef) $("revert").addEventListener("click", function () { setData(DEFAULT_DATA, []); });
+      '<span class="sep">·</span><button class="lnk" id="clearBtn" type="button">Quitar datos</button>';
+    $("clearBtn").addEventListener("click", function () { setData(null, []); });
 
     $("footer").innerHTML = 'Tablero de Control · Plataforma Analítica · datos: ' + esc(DATA.src) + '<br>' +
       'Marca VITAL aplicada según su Manual de Marca (ene. 2021) · Atribución Softtek según Brandkeeper 2025, pág. 24 (caso B).';
@@ -1530,11 +1563,22 @@
       ? "<ul><li>" + lines.join("</li><li>") + "</li></ul>" : "");
     if (kind === "ok") setTimeout(function () { el.className = "loadmsg"; }, 6000);
   }
+  // Alterna entre el estado vacío y el tablero con datos
+  function applyView() {
+    var has = !!DATA;
+    $("emptyState").style.display   = has ? "none" : "";
+    $("filtersBar").style.display   = has ? "" : "none";
+    $("dashboardBody").style.display = has ? "" : "none";
+    $("srcbar").style.display       = has ? "" : "none";
+    if (!has) $("tc-meta").innerHTML = "";
+  }
+
   function setData(d, warns) {
     DATA = d;
     state.fase = "all"; state.estado = "all";
-    buildFilters(); render();
-    if (d !== DEFAULT_DATA) {
+    applyView();
+    if (d) { buildFilters(); render(); }
+    if (d && d !== DEFAULT_DATA) {
       msg("ok", "Datos cargados de “" + d.src + "”.", warns);
     } else {
       $("loadmsg").className = "loadmsg";
@@ -1542,6 +1586,8 @@
   }
 
   $("loadBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("emptyLoadBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("emptyExample").addEventListener("click", function () { setData(DEFAULT_DATA, []); });
   $("fileInput").addEventListener("change", function (ev) {
     var file = ev.target.files && ev.target.files[0];
     if (!file) return;
@@ -1586,8 +1632,7 @@
     root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
   });
 
-  buildFilters();
-  render();
+  applyView();   // sin datos al inicio: muestra el estado vacío
   window.__tc = { readXlsx: readXlsx, buildModel: buildModel, setData: setData,
                   get data() { return DATA; } };   // para pruebas
 })();
